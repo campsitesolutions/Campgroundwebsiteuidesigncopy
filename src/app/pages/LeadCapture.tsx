@@ -35,15 +35,16 @@ const EMAIL_ENABLED = true;
 //   - 'https://campsite-showroom.vercel.app'
 //   - 'https://demo.campsite.solutions'
 //   - 'https://your-domain.com'
-const PRODUCTION_URL = 'https://your-production-url.com'; // ⚠️ UPDATE THIS!
+const PRODUCTION_URL = 'https://campgroundwebsiteuidesigncopy.vercel.app'; // ✅ PRODUCTION URL SET!
 
 // Use production URL if set, otherwise fall back to current origin
 const getBaseUrl = () => {
-  // If running on localhost and production URL is set, use production URL
-  if (window.location.hostname === 'localhost' && PRODUCTION_URL !== 'https://your-production-url.com') {
+  // If production URL is properly configured, ALWAYS use it
+  // This ensures email links work from Figma preview, localhost, or production
+  if (PRODUCTION_URL && PRODUCTION_URL !== 'https://your-production-url.com') {
     return PRODUCTION_URL;
   }
-  // Otherwise use current origin
+  // Otherwise use current origin (fallback)
   return window.location.origin;
 };
 
@@ -107,8 +108,13 @@ export function LeadCapture() {
     localStorage.setItem(storageKey, JSON.stringify(previewData));
     console.log('✅ Preview data stored:', storageKey, previewData);
 
-    // Generate preview URL (use current domain)
-    const url = `${getBaseUrl()}/layout-preview/${previewId}`;
+    // Generate preview URL with data encoded in the URL (works across all domains!)
+    // Use URL-safe base64 encoding
+    const dataStr = JSON.stringify(previewData);
+    const base64 = btoa(dataStr);
+    // Make base64 URL-safe by replacing characters
+    const urlSafeBase64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    const url = `${getBaseUrl()}/layout-preview/${previewId}?data=${urlSafeBase64}`;
     console.log('🔗 Preview URL generated:', url);
     console.log('🔗 Setting previewUrl state to:', url);
     setPreviewUrl(url);

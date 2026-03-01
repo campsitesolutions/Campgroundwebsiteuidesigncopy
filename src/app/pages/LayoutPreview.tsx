@@ -33,10 +33,35 @@ export function LayoutPreview() {
 
   useEffect(() => {
     if (id) {
+      // First, try to get data from URL parameter (works across all domains!)
+      const urlParams = new URLSearchParams(window.location.search);
+      const encodedData = urlParams.get('data');
+      
+      if (encodedData) {
+        try {
+          // Decode URL-safe base64 (reverse the encoding from LeadCapture)
+          let base64 = encodedData.replace(/-/g, '+').replace(/_/g, '/');
+          // Add padding if needed
+          while (base64.length % 4) {
+            base64 += '=';
+          }
+          const dataStr = atob(base64);
+          const data = JSON.parse(dataStr);
+          setPreviewData(data);
+          console.log('✅ Preview data loaded from URL:', data);
+          return;
+        } catch (error) {
+          console.error('❌ Failed to decode URL data:', error);
+        }
+      }
+      
+      // Fallback: try localStorage (for backwards compatibility)
       const stored = localStorage.getItem(`campsite_preview_${id}`);
       if (stored) {
         setPreviewData(JSON.parse(stored));
+        console.log('✅ Preview data loaded from localStorage (fallback)');
       } else {
+        console.error('❌ No preview data found in URL or localStorage');
         setNotFound(true);
       }
     }
