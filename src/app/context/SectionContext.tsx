@@ -73,9 +73,12 @@ export function SectionProvider({ children }: { children: ReactNode }) {
   }, [branding]);
 
   const addSection = (id: string) => {
-    if (!selectedSections.includes(id)) {
-      setSelectedSections([...selectedSections, id]);
-    }
+    setSelectedSections(prev => {
+      if (!prev.includes(id)) {
+        return [...prev, id];
+      }
+      return prev;
+    });
   };
 
   const removeSection = (id: string) => {

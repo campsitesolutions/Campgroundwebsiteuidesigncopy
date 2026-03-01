@@ -68,7 +68,13 @@ export function LeadCapture() {
 
   // Pre-populate form with wizard data if available
   useEffect(() => {
-    if (wizardData.isCompleted) {
+    console.log('🔍 LeadCapture: Checking wizard data...', wizardData);
+    console.log('🔍 isCompleted:', wizardData.isCompleted);
+    console.log('🔍 campgroundName:', wizardData.campgroundName);
+    
+    // Pre-fill if wizard has data (even if not marked as completed)
+    if (wizardData.campgroundName || wizardData.email || wizardData.yourName) {
+      console.log('✅ Pre-filling form with wizard data!');
       setFormData({
         parkName: wizardData.campgroundName || '',
         contactName: wizardData.yourName || '',
@@ -80,6 +86,8 @@ export function LeadCapture() {
                       wizardData.primaryBusinessModel || 'seasonal') as 'seasonal' | 'overnight' | 'trailers',
         notes: wizardData.additionalNotes || '',
       });
+    } else {
+      console.log('❌ No wizard data found to pre-fill');
     }
   }, [wizardData]);
 
@@ -345,7 +353,7 @@ export function LeadCapture() {
             <p className="text-xl text-gray-600">
               Tell us about your campground and we'll create a customized plan.
             </p>
-            {wizardData.isCompleted && (
+            {(wizardData.campgroundName || wizardData.email || wizardData.yourName) && (
               <div className="mt-4 inline-flex items-center gap-2 bg-green-50 text-green-800 px-4 py-2 rounded-lg text-sm font-medium">
                 <Check className="w-4 h-4" />
                 Your information has been pre-filled from the wizard
@@ -375,6 +383,7 @@ export function LeadCapture() {
                 <h2 className="font-bold text-2xl mb-6">Your Information</h2>
                 
                 <div className="space-y-5">
+                  {/* Basic Contact Info */}
                   <div>
                     <label htmlFor="parkName" className="block text-sm font-semibold mb-2">
                       Campground Name *
@@ -455,25 +464,106 @@ export function LeadCapture() {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="primaryModel" className="block text-sm font-semibold mb-2">
-                      Primary Business Model *
-                    </label>
-                    <select
-                      id="primaryModel"
-                      name="primaryModel"
-                      required
-                      value={formData.primaryModel}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E8D5B5]"
-                    >
-                      <option value="seasonal">Seasonal Sites</option>
-                      <option value="overnight">Overnight Camping</option>
-                      <option value="trailers">Trailers for Sale</option>
-                    </select>
+                  {/* Business Model Section */}
+                  <div className="border-t border-gray-200 pt-5 mt-6">
+                    <h3 className="font-bold text-lg mb-4">Business Model</h3>
+                    
+                    <div>
+                      <label htmlFor="primaryModel" className="block text-sm font-semibold mb-2">
+                        Primary Business Model *
+                      </label>
+                      <select
+                        id="primaryModel"
+                        name="primaryModel"
+                        required
+                        value={formData.primaryModel}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E8D5B5]"
+                      >
+                        <option value="seasonal">Seasonal Sites</option>
+                        <option value="overnight">Overnight Camping</option>
+                        <option value="trailers">Trailers for Sale</option>
+                      </select>
+                    </div>
+
+                    {wizardData.secondaryBusinessModels.length > 0 && (
+                      <div className="mt-3 bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm font-semibold text-gray-700 mb-2">Secondary Business Models:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {wizardData.secondaryBusinessModels.map(model => (
+                            <span key={model} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                              {model === 'trailer-sales' ? 'Trailer Sales' : 
+                               model === 'cottage-rentals' ? 'Cottage Rentals' :
+                               model.charAt(0).toUpperCase() + model.slice(1)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div>
+                  {/* Goals & Audience Section */}
+                  {(wizardData.primaryGoal || wizardData.secondaryGoal || wizardData.targetAudiences.length > 0) && (
+                    <div className="border-t border-gray-200 pt-5 mt-6">
+                      <h3 className="font-bold text-lg mb-4">Goals & Target Audience</h3>
+                      
+                      {wizardData.primaryGoal && (
+                        <div className="mb-3 bg-emerald-50 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-emerald-900 mb-1">Primary Goal:</p>
+                          <p className="text-emerald-800 capitalize">
+                            {wizardData.primaryGoal === 'trailer-leads' ? 'Trailer Leads' : wizardData.primaryGoal}
+                          </p>
+                        </div>
+                      )}
+
+                      {wizardData.secondaryGoal && (
+                        <div className="mb-3 bg-blue-50 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-blue-900 mb-1">Secondary Goal:</p>
+                          <p className="text-blue-800 capitalize">
+                            {wizardData.secondaryGoal === 'trailer-leads' ? 'Trailer Leads' : wizardData.secondaryGoal}
+                          </p>
+                        </div>
+                      )}
+
+                      {wizardData.targetAudiences.length > 0 && (
+                        <div className="bg-purple-50 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-purple-900 mb-2">Target Audiences:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {wizardData.targetAudiences.map(audience => (
+                              <span key={audience} className="bg-purple-200 text-purple-900 px-3 py-1 rounded-full text-sm">
+                                {audience === 'outdoor-adventurers' ? 'Outdoor Adventurers' : 
+                                 audience.charAt(0).toUpperCase() + audience.slice(1)}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Messaging & Pain Points Section */}
+                  {(wizardData.painPoints || wizardData.highlights) && (
+                    <div className="border-t border-gray-200 pt-5 mt-6">
+                      <h3 className="font-bold text-lg mb-4">Your Messaging</h3>
+                      
+                      {wizardData.painPoints && (
+                        <div className="mb-4 bg-orange-50 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-orange-900 mb-2">Pain Points & Challenges:</p>
+                          <p className="text-orange-800 text-sm">{wizardData.painPoints}</p>
+                        </div>
+                      )}
+
+                      {wizardData.highlights && (
+                        <div className="bg-green-50 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-green-900 mb-2">Key Highlights:</p>
+                          <p className="text-green-800 text-sm">{wizardData.highlights}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Additional Notes */}
+                  <div className="border-t border-gray-200 pt-5 mt-6">
                     <label htmlFor="notes" className="block text-sm font-semibold mb-2">
                       Additional Notes
                     </label>

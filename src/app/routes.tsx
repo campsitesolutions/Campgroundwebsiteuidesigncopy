@@ -11,6 +11,7 @@ import { ComponentReviewBoard } from "./pages/ComponentReviewBoard";
 import { SectionPreview } from "./pages/SectionPreview";
 import { IntakeWizard } from "./components/IntakeWizard";
 import { LayoutPreview } from "./pages/LayoutPreview";
+import { StrategySummary } from "./pages/StrategySummary";
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
       {
         path: "section-library",
         loader: () => redirect("/library"),
+      },
+      {
+        path: "strategy-summary",
+        element: <StrategySummary />,
       },
       {
         path: "my-layout",

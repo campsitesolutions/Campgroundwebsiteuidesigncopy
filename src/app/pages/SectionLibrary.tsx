@@ -60,7 +60,8 @@ export function SectionLibrary() {
   // Get recommended sections using predefined mapping
   const recommendedSectionIds = getRecommendedStack(
     wizardData.primaryBusinessModel,
-    wizardData.primaryGoal
+    wizardData.primaryGoal,
+    wizardData // Pass full wizard data for intelligent analysis
   );
 
   // Filter out any section IDs that don't exist in the library
@@ -273,15 +274,23 @@ export function SectionLibrary() {
                 </p>
               </div>
               {selectedSections.length > 0 && (
-                <Link
-                  to="/my-layout"
-                  className="bg-[#E8D5B5] hover:bg-[#D4C5A5] text-[#2C3E50] px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
-                >
-                  View My Layout
-                  <span className="bg-[#2C3E50] text-[#E8D5B5] text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                    {selectedSections.length}
-                  </span>
-                </Link>
+                <div className="flex gap-3">
+                  <Link
+                    to="/strategy-summary"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
+                  >
+                    View Strategy Summary
+                  </Link>
+                  <Link
+                    to="/my-layout"
+                    className="bg-[#E8D5B5] hover:bg-[#D4C5A5] text-[#2C3E50] px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
+                  >
+                    View My Layout
+                    <span className="bg-[#2C3E50] text-[#E8D5B5] text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                      {selectedSections.length}
+                    </span>
+                  </Link>
+                </div>
               )}
             </div>
           </div>
@@ -304,12 +313,29 @@ export function SectionLibrary() {
                   <div className="flex flex-wrap gap-3 mb-4">
                     <button
                       onClick={() => {
+                        console.log('🚀 Add All Recommended button clicked!');
+                        console.log('📋 validRecommendedSectionIds:', validRecommendedSectionIds);
+                        console.log('📋 Number of recommendations:', validRecommendedSectionIds.length);
+                        console.log('📋 Currently selected sections:', selectedSections);
+                        
+                        let addedCount = 0;
+                        let skippedCount = 0;
+                        
                         // Add all recommended sections
                         validRecommendedSectionIds.forEach(id => {
                           if (!isSelected(id)) {
+                            console.log(`  ✅ Adding section: ${id}`);
                             addSection(id);
+                            addedCount++;
+                          } else {
+                            console.log(`  ⏭️  Skipping (already selected): ${id}`);
+                            skippedCount++;
                           }
                         });
+                        
+                        console.log(`✅ Added ${addedCount} sections`);
+                        console.log(`⏭️  Skipped ${skippedCount} sections (already selected)`);
+                        console.log('📋 Selected sections after adding:', selectedSections);
                       }}
                       className="px-6 py-3 bg-[#E8D5B5] text-[#2C3E50] hover:bg-[#D4C5A5] rounded-lg font-semibold transition-colors"
                     >
