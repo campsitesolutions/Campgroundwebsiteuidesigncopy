@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/sections/Footer';
 import { useSections } from '../context/SectionContext';
+import { useWizard } from '../context/WizardContext';
 import { sections } from '../data/sections';
 import { Check, Send, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
 import emailjs from '@emailjs/browser';
@@ -50,6 +51,7 @@ const getBaseUrl = () => {
 
 export function LeadCapture() {
   const { selectedSections, clearSelections } = useSections();
+  const { wizardData } = useWizard();
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -63,6 +65,23 @@ export function LeadCapture() {
     primaryModel: 'seasonal' as 'seasonal' | 'overnight' | 'trailers',
     notes: '',
   });
+
+  // Pre-populate form with wizard data if available
+  useEffect(() => {
+    if (wizardData.isCompleted) {
+      setFormData({
+        parkName: wizardData.campgroundName || '',
+        contactName: wizardData.yourName || '',
+        email: wizardData.email || '',
+        phone: wizardData.phone || '',
+        website: wizardData.websiteUrl || '',
+        primaryModel: (wizardData.primaryBusinessModel === 'trailer-sales' ? 'trailers' : 
+                      wizardData.primaryBusinessModel === 'cottage-rentals' ? 'overnight' :
+                      wizardData.primaryBusinessModel || 'seasonal') as 'seasonal' | 'overnight' | 'trailers',
+        notes: wizardData.additionalNotes || '',
+      });
+    }
+  }, [wizardData]);
 
   const selectedSectionData = selectedSections
     .map(id => sections.find(s => s.id === id))
@@ -326,6 +345,12 @@ export function LeadCapture() {
             <p className="text-xl text-gray-600">
               Tell us about your campground and we'll create a customized plan.
             </p>
+            {wizardData.isCompleted && (
+              <div className="mt-4 inline-flex items-center gap-2 bg-green-50 text-green-800 px-4 py-2 rounded-lg text-sm font-medium">
+                <Check className="w-4 h-4" />
+                Your information has been pre-filled from the wizard
+              </div>
+            )}
           </div>
 
           {!EMAIL_ENABLED && (
