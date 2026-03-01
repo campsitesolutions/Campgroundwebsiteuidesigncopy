@@ -3,6 +3,79 @@ import { useParams, Link } from 'react-router';
 import { sections } from '../data/sections';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 
+// Import all section components
+import { NavigationCentered } from '../components/sections/NavigationCentered';
+import { NavigationWithCTA } from '../components/sections/NavigationWithCTA';
+import { NavigationWithTopBar } from '../components/sections/NavigationWithTopBar';
+import { Hero } from '../components/sections/Hero';
+import { HeroCinematicOverlay } from '../components/sections/HeroCinematicOverlay';
+import { HeroSplitLayout } from '../components/sections/HeroSplitLayout';
+import { HeroCenteredWithStats } from '../components/sections/HeroCenteredWithStats';
+import { HeroWeather } from '../components/sections/HeroWeather';
+import { StayTypeCards } from '../components/sections/StayTypeCards';
+import { StayTypeCardsImageOverlay } from '../components/sections/StayTypeCardsImageOverlay';
+import { StayTypeCardsStructured } from '../components/sections/StayTypeCardsStructured';
+import { StayTypeCardsSpotlight } from '../components/sections/StayTypeCardsSpotlight';
+import { GalleryGrid } from '../components/sections/GalleryGrid';
+import { GalleryMasonry } from '../components/sections/GalleryMasonry';
+import { GalleryUniformGrid } from '../components/sections/GalleryUniformGrid';
+import { GalleryHorizontalScroll } from '../components/sections/GalleryHorizontalScroll';
+import { Reviews } from '../components/sections/Reviews';
+import { LocalAttractions } from '../components/sections/LocalAttractions';
+import { FAQ } from '../components/sections/FAQ';
+import { CTABanner } from '../components/sections/CTABanner';
+import { CTAImageBackground } from '../components/sections/CTAImageBackground';
+import { CTASolidBand } from '../components/sections/CTASolidBand';
+import { CTASplitLayout } from '../components/sections/CTASplitLayout';
+import { ContactSection } from '../components/sections/ContactSection';
+import { RatesTeaserStrip } from '../components/sections/RatesTeaserStrip';
+import { AmenitiesGrid } from '../components/sections/AmenitiesGrid';
+import { SeasonalBenefits } from '../components/sections/SeasonalBenefits';
+import { SeasonalBenefitsIconCards } from '../components/sections/SeasonalBenefitsIconCards';
+import { SeasonalBenefitsAlternating } from '../components/sections/SeasonalBenefitsAlternating';
+import { SeasonalBenefitsStats } from '../components/sections/SeasonalBenefitsStats';
+import { TrailersGrid } from '../components/sections/TrailersGrid';
+import { TrailersCleanGrid } from '../components/sections/TrailersCleanGrid';
+import { TrailersFeaturedGrid } from '../components/sections/TrailersFeaturedGrid';
+import { TrailersHorizontalScroll } from '../components/sections/TrailersHorizontalScroll';
+
+const componentMap: { [key: string]: React.ComponentType<any> } = {
+  NavigationCentered,
+  NavigationWithCTA,
+  NavigationWithTopBar,
+  Hero,
+  HeroCinematicOverlay,
+  HeroSplitLayout,
+  HeroCenteredWithStats,
+  HeroWeather,
+  StayTypeCards,
+  StayTypeCardsImageOverlay,
+  StayTypeCardsStructured,
+  StayTypeCardsSpotlight,
+  RatesTeaserStrip,
+  AmenitiesGrid,
+  SeasonalBenefits,
+  SeasonalBenefitsIconCards,
+  SeasonalBenefitsAlternating,
+  SeasonalBenefitsStats,
+  TrailersGrid,
+  TrailersCleanGrid,
+  TrailersFeaturedGrid,
+  TrailersHorizontalScroll,
+  GalleryGrid,
+  GalleryMasonry,
+  GalleryUniformGrid,
+  GalleryHorizontalScroll,
+  Reviews,
+  LocalAttractions,
+  FAQ,
+  CTABanner,
+  CTAImageBackground,
+  CTASolidBand,
+  CTASplitLayout,
+  ContactSection,
+};
+
 interface PreviewData {
   sectionIds: string[];
   branding: {
@@ -183,68 +256,37 @@ export function LayoutPreview() {
         </div>
 
         {/* Layout Preview */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
           {/* Branding Header */}
           <div 
-            className="py-12 px-8 text-center text-white"
+            className="py-8 px-8 text-center text-white"
             style={{ backgroundColor: paletteColors.primary }}
           >
-            <h2 className="text-3xl font-bold mb-2">
-              {branding.companyName || contactInfo.parkName}
+            <h2 className="text-2xl font-bold mb-2">
+              Visual Preview
             </h2>
-            <p className="text-white/80">Custom Website Layout</p>
+            <p className="text-white/80">Scroll to see your custom layout design</p>
           </div>
+        </div>
 
-          {/* Section List */}
-          <div className="p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">
-              Layout Structure ({selectedSectionData.length} sections)
-            </h3>
-
-            <div className="space-y-3">
-              {selectedSectionData.map((section, index) => (
-                <div
-                  key={section.id}
-                  className="flex items-center gap-4 p-4 rounded-lg border-l-4 transition-all hover:shadow-md"
-                  style={{
-                    backgroundColor: index % 2 === 0 ? '#f9fafb' : '#ffffff',
-                    borderLeftColor: paletteColors.accent,
-                  }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0"
-                    style={{ backgroundColor: paletteColors.primary }}
-                  >
-                    {index + 1}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{section.name}</h4>
-                    <p className="text-sm text-gray-600">{section.description}</p>
-                  </div>
-                  <div className="hidden sm:flex flex-wrap gap-2">
-                    {section.tags && Array.isArray(section.tags) && section.tags.slice(0, 3).map(tag => (
-                      <span
-                        key={tag}
-                        className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+        {/* Actual Rendered Sections */}
+        <div className="space-y-0 border border-gray-200 rounded-xl overflow-hidden shadow-lg">
+          {selectedSectionData.map((section) => {
+            const Component = componentMap[section.component];
+            if (!Component) return null;
+            
+            return (
+              <div key={section.id} className="relative">
+                {/* Section Label */}
+                <div className="absolute top-4 left-4 z-10 bg-black/70 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-lg">
+                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                  {section.name}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div
-            className="py-6 px-8 text-center"
-            style={{ backgroundColor: paletteColors.secondary }}
-          >
-            <p className="text-gray-600 text-sm">
-              Built with CampSite Solutions
-            </p>
-          </div>
+                {/* Render the actual component */}
+                <Component />
+              </div>
+            );
+          })}
         </div>
 
         {/* CTA */}
