@@ -7,6 +7,7 @@ import { sections } from '../data/sections';
 import { Check, Send, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import { generateLayoutHTML, generateLayoutText } from '../utils/layoutScreenshot';
+import { formatPainPoint, formatHighlight } from '../utils/strategyHelpers';
 
 // ============================================
 // EmailJS Configuration
@@ -152,12 +153,24 @@ export function LeadCapture() {
         // Generate layout text for plain text version
         const layoutText = generateLayoutText(selectedSectionData.map(s => s.name));
 
+        // Format wizard data for email
+        const wizardDataText = [
+          wizardData.primaryBusinessModel && `Primary Business Model: ${wizardData.primaryBusinessModel}`,
+          wizardData.secondaryBusinessModels.length > 0 && `Secondary Business Models: ${wizardData.secondaryBusinessModels.join(', ')}`,
+          wizardData.primaryGoal && `Primary Goal: ${wizardData.primaryGoal}`,
+          wizardData.secondaryGoal && `Secondary Goal: ${wizardData.secondaryGoal}`,
+          wizardData.targetAudiences.length > 0 && `Target Audiences: ${wizardData.targetAudiences.join(', ')}`,
+          wizardData.painPoints.length > 0 && `Pain Points: ${wizardData.painPoints.map(p => formatPainPoint(p)).join(', ')}`,
+          wizardData.highlights.length > 0 && `Highlights: ${wizardData.highlights.map(h => formatHighlight(h)).join(', ')}`,
+        ].filter(Boolean).join('\n');
+
         console.log('📧 Email Data:', {
           sectionCount: selectedSectionData.length,
           sectionNames: selectedSectionData.map(s => s.name),
           branding,
           paletteColors,
           previewUrl: url,
+          wizardData: wizardDataText,
         });
 
         const templateParams = {
@@ -173,6 +186,12 @@ export function LeadCapture() {
           layoutText: layoutText, // Plain text list
           sectionCount: selectedSections.length,
           previewUrl: url, // Link to view the layout preview
+          // NEW: Wizard data for comprehensive lead info
+          wizardData: wizardDataText || 'No wizard data provided',
+          primaryGoal: wizardData.primaryGoal || 'Not specified',
+          painPoints: wizardData.painPoints.length > 0 ? wizardData.painPoints.map(p => formatPainPoint(p)).join(', ') : 'None',
+          highlights: wizardData.highlights.length > 0 ? wizardData.highlights.map(h => formatHighlight(h)).join(', ') : 'None',
+          targetAudiences: wizardData.targetAudiences.length > 0 ? wizardData.targetAudiences.join(', ') : 'Not specified',
         };
 
         console.log('📧 Sending email with templateParams:', templateParams);
@@ -542,21 +561,33 @@ export function LeadCapture() {
                   )}
 
                   {/* Messaging & Pain Points Section */}
-                  {(wizardData.painPoints || wizardData.highlights) && (
+                  {(wizardData.painPoints.length > 0 || wizardData.highlights.length > 0) && (
                     <div className="border-t border-gray-200 pt-5 mt-6">
                       <h3 className="font-bold text-lg mb-4">Your Messaging</h3>
                       
-                      {wizardData.painPoints && (
-                        <div className="mb-4 bg-orange-50 rounded-lg p-4">
-                          <p className="text-sm font-semibold text-orange-900 mb-2">Pain Points & Challenges:</p>
-                          <p className="text-orange-800 text-sm">{wizardData.painPoints}</p>
+                      {wizardData.painPoints.length > 0 && (
+                        <div className="mb-4 bg-red-50 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-red-900 mb-2">Pain Points & Challenges:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {wizardData.painPoints.map(painPoint => (
+                              <span key={painPoint} className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">
+                                {formatPainPoint(painPoint)}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       )}
 
-                      {wizardData.highlights && (
-                        <div className="bg-green-50 rounded-lg p-4">
-                          <p className="text-sm font-semibold text-green-900 mb-2">Key Highlights:</p>
-                          <p className="text-green-800 text-sm">{wizardData.highlights}</p>
+                      {wizardData.highlights.length > 0 && (
+                        <div className="bg-amber-50 rounded-lg p-4">
+                          <p className="text-sm font-semibold text-amber-900 mb-2">Key Highlights:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {wizardData.highlights.map(highlight => (
+                              <span key={highlight} className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm">
+                                {formatHighlight(highlight)}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
