@@ -3,7 +3,7 @@ import { useWizard } from '../context/WizardContext';
 import { useSections } from '../context/SectionContext';
 import { sections as allSections } from '../data/sections';
 import { getRecommendedStack } from '../data/recommendationMapping';
-import { ArrowLeft, Mail, Calendar, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Mail, Calendar, CheckCircle2, Loader2, Check } from 'lucide-react';
 import {
   formatPainPoint,
   formatHighlight,
@@ -11,6 +11,18 @@ import {
   generateStrategicRationale,
   generateSectionReasons,
 } from '../utils/strategyHelpers';
+import { useState } from 'react';
+import emailjs from '@emailjs/browser';
+
+// EmailJS Configuration (same as LeadCapture)
+const EMAILJS_CONFIG = {
+  serviceId: 'service_gjhrv5c',
+  templateId: 'template_sc8xh69',
+  publicKey: 'EZRLXacodMklHIfE5',
+  recipientEmail: 'info@campsite.solutions',
+};
+
+const EMAIL_ENABLED = true;
 
 export function StrategySummary() {
   const navigate = useNavigate();
@@ -48,12 +60,111 @@ export function StrategySummary() {
     wizardData.primaryGoal
   );
 
-  // Handle email summary
-  const handleEmailSummary = () => {
-    const subject = `Strategy Summary - ${wizardData.campgroundName}`;
-    const body = generateEmailBody(wizardData, recommendedSections, keyFocusAreas, strategicRationale);
-    window.location.href = `mailto:${wizardData.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  // Email submission state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    if (EMAIL_ENABLED) {
+      try {
+        // Format wizard data for email
+        const wizardDataText = [
+          `Campground: ${wizardData.campgroundName}`,
+          wizardData.email && `Email: ${wizardData.email}`,
+          wizardData.phone && `Phone: ${wizardData.phone}`,
+          wizardData.websiteUrl && `Website: ${wizardData.websiteUrl}`,
+          `Primary Business Model: ${formatBusinessModel(wizardData.primaryBusinessModel)}`,
+          wizardData.secondaryBusinessModels.length > 0 && `Secondary Models: ${wizardData.secondaryBusinessModels.map(formatBusinessModel).join(', ')}`,
+          `Primary Goal: ${formatGoal(wizardData.primaryGoal)}`,
+          wizardData.secondaryGoal && `Secondary Goal: ${formatGoal(wizardData.secondaryGoal)}`,
+          wizardData.targetAudiences.length > 0 && `Target Audiences: ${wizardData.targetAudiences.map(formatAudience).join(', ')}`,
+          wizardData.painPoints.length > 0 && `Pain Points: ${wizardData.painPoints.map(p => formatPainPoint(p)).join(', ')}`,
+          wizardData.highlights.length > 0 && `Highlights: ${wizardData.highlights.map(h => formatHighlight(h)).join(', ')}`,
+        ].filter(Boolean).join('\n');
+
+        const templateParams = {
+          parkName: wizardData.campgroundName,
+          contactName: wizardData.yourName || 'Not provided',
+          email: wizardData.email || 'Not provided',
+          phone: wizardData.phone || 'Not provided',
+          website: wizardData.websiteUrl || 'Not provided',
+          recipientEmail: EMAILJS_CONFIG.recipientEmail,
+          // Strategy Summary Data
+          wizardData: wizardDataText,
+          primaryGoal: formatGoal(wizardData.primaryGoal),
+          primaryBusinessModel: formatBusinessModel(wizardData.primaryBusinessModel),
+          painPoints: wizardData.painPoints.length > 0 ? wizardData.painPoints.map(p => formatPainPoint(p)).join(', ') : 'None',
+          highlights: wizardData.highlights.length > 0 ? wizardData.highlights.map(h => formatHighlight(h)).join(', ') : 'None',
+          targetAudiences: wizardData.targetAudiences.length > 0 ? wizardData.targetAudiences.map(formatAudience).join(', ') : 'Not specified',
+          keyFocusAreas: keyFocusAreas.join('\n'),
+          recommendedSections: recommendedSections.map((s, i) => `${i + 1}. ${s!.name}`).join('\n'),
+          strategicRationale: strategicRationale,
+          sectionCount: recommendedSections.length,
+        };
+
+        console.log('📧 Sending Strategy Summary email with params:', templateParams);
+
+        const response = await emailjs.send(
+          EMAILJS_CONFIG.serviceId,
+          EMAILJS_CONFIG.templateId,
+          templateParams,
+          EMAILJS_CONFIG.publicKey
+        );
+
+        console.log('✅ Email sent successfully:', response);
+        setSubmitted(true);
+        setIsSubmitting(false);
+      } catch (error) {
+        console.error('❌ Email sending failed:', error);
+        setSubmitError('Failed to send email. Please try again later.');
+        setIsSubmitting(false);
+      }
+    } else {
+      // Demo mode: simulate submission
+      console.log('📧 Demo mode - not sending email');
+      setTimeout(() => {
+        setSubmitted(true);
+        setIsSubmitting(false);
+      }, 2000);
+    }
   };
+
+  // Show success screen if submitted
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="max-w-2xl mx-auto px-6 text-center">
+          <div className="bg-white rounded-2xl shadow-xl p-12">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Check className="w-10 h-10 text-green-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-neutral-900 mb-4">Strategy Summary Submitted!</h1>
+            <p className="text-xl text-neutral-600 mb-8">
+              Your personalized strategy has been sent to our team. We'll be in touch within 24 hours to discuss next steps.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => navigate('/library')}
+                className="px-6 py-3 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors"
+              >
+                Back to Library
+              </button>
+              <button
+                onClick={() => navigate('/my-layout')}
+                className="px-6 py-3 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors"
+              >
+                Preview Your Site
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -221,41 +332,34 @@ export function StrategySummary() {
           </div>
         </section>
 
-        {/* SECTION 5: Next Steps */}
+        {/* Submit Button */}
         <section>
-          <h2 className="text-xl font-medium text-neutral-900 mb-6">Next Steps</h2>
-          <div className="bg-neutral-50 rounded-lg p-6">
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-center gap-3 text-neutral-700">
-                <CheckCircle2 className="w-5 h-5 text-green-600" />
-                Review your recommended layout in the Section Library
-              </li>
-              <li className="flex items-center gap-3 text-neutral-700">
-                <CheckCircle2 className="w-5 h-5 text-green-600" />
-                Customize sections to match your brand and messaging
-              </li>
-              <li className="flex items-center gap-3 text-neutral-700">
-                <CheckCircle2 className="w-5 h-5 text-green-600" />
-                Schedule a 15-minute strategy call to review implementation
-              </li>
-            </ul>
-
-            <div className="flex gap-4">
-              <button
-                onClick={() => window.open('https://calendly.com', '_blank')}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Calendar className="w-5 h-5" />
-                Book Strategy Call
-              </button>
-              <button
-                onClick={handleEmailSummary}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-neutral-700 rounded-lg border border-neutral-300 hover:bg-neutral-50 transition-colors"
-              >
-                <Mail className="w-5 h-5" />
-                Email This Summary
-              </button>
-            </div>
+          <div className="bg-neutral-50 rounded-lg p-8 text-center">
+            <p className="text-neutral-700 mb-6">
+              Ready to bring this strategy to life? Submit your selections and we'll send a detailed recap to our sales team.
+            </p>
+            {submitError && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                {submitError}
+              </div>
+            )}
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-5 h-5" />
+                  Submit & Email Strategy Recap
+                </>
+              )}
+            </button>
           </div>
         </section>
 
@@ -269,7 +373,7 @@ export function StrategySummary() {
             Back to Library
           </button>
           <button
-            onClick={() => navigate('/preview')}
+            onClick={() => navigate('/my-layout')}
             className="px-6 py-3 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors"
           >
             Preview Your Site
