@@ -222,7 +222,7 @@ export function LayoutPreview() {
                     <p className="text-sm text-gray-600">{section.description}</p>
                   </div>
                   <div className="hidden sm:flex flex-wrap gap-2">
-                    {section.tags.slice(0, 3).map(tag => (
+                    {section.tags && Array.isArray(section.tags) && section.tags.slice(0, 3).map(tag => (
                       <span
                         key={tag}
                         className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600"
