@@ -1,0 +1,73 @@
+Add a new multi-step intake wizard BEFORE the Section Library.
+
+Goal: collect the minimum details needed to (1) personalize preview copy and (2) recommend the best sections for the user’s campground business model and conversion goal.
+
+Wizard requirements:
+- Stepper UI at top with clear progress (Step 1 of 4, etc.)
+- Save user inputs as variables that can be reused across the builder (e.g., {{campground_name}}, {{primary_goal}})
+- Validation: required fields show inline errors and prevent continuing
+- “Back” and “Next” buttons, with a final “Continue to Section Library” button
+
+Steps and fields:
+
+Step 1 — Contact + Park Identity
+- Campground Name * (text) placeholder: Pine Valley Campground
+- Your Name * (text) placeholder: John Smith
+- Email Address * (email) placeholder: john@example.com
+- Phone Number (tel) placeholder: (705) 555-0123
+- Current Website URL (url) placeholder: https://www.yourpark.com
+
+Step 2 — Business Model
+- Primary Business Model * (radio):
+  - Seasonal Sites
+  - Overnight Camping
+  - Trailer Sales
+  - Cottage Rentals
+- Secondary Business Model (optional multi-select checkboxes, same list)
+
+Step 3 — Goals + Audience
+- Primary Goal * (radio):
+  - Bookings
+  - Inquiries
+  - Trailer Leads
+- Secondary Goal (optional select): same list
+- Target audience (checkboxes):
+  - Families
+  - Couples
+  - Snowbirds
+  - Retirees
+  - Outdoor adventurers
+
+Step 4 — Messaging + Pain Points
+- What are your pain points? (textarea) placeholder: “Outdated site, too many calls, hard to update…”
+- What do you want to highlight? (textarea) placeholder: “New pool, theme weekends, big sites…”
+- Anything else we should know? (textarea)
+
+After Step 4, show a “Summary” screen and then enter the Section Library.
+
+When the user reaches the Section Library:
+- Personalize the top header: “Build {{campground_name}}’s homepage”
+- Pre-select recommended sections based on Primary Business Model + Primary Goal
+- Display a “Recommended for you” badge on the best-fit sections
+- Allow user to change selections
+
+That prompt tells Make AI exactly what you mean by “step-based prompts”, with required fields, data variables, and downstream behavior.
+
+Prompt to make the Section Library actually respond to those answers
+
+Update the Section Library so it becomes personalized and strategy-driven:
+
+- Create a “Recommended Stack” panel at the top that appears after the wizard is completed.
+- Generate a default section stack order based on:
+  - Primary Business Model
+  - Primary Goal
+- Show an explanation: “Recommended because you selected Seasonal Sites + Inquiries…”
+
+Rules:
+- Seasonal + Inquiries: emphasize lifestyle, community, long-stay benefits, contact-first CTAs
+- Overnight + Bookings: emphasize Book Now CTAs, amenities, availability, map, reviews
+- Trailer Sales + Trailer Leads: emphasize inventory, financing, featured listings, strong lead capture
+- Cottages + Bookings: emphasize gallery, accommodation comparison, booking CTAs, FAQs
+
+Add a toggle:
+- “Show only recommended” / “Show all sections”
