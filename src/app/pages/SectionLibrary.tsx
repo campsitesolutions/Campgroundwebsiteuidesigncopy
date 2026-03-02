@@ -24,6 +24,11 @@ export function SectionLibrary() {
   const [showAllSections, setShowAllSections] = useState(false);
   const [showRecommendationPanel, setShowRecommendationPanel] = useState(true);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   // Sync wizard data to section context
   useEffect(() => {
     if (wizardData.isCompleted) {
@@ -369,7 +374,7 @@ export function SectionLibrary() {
                     {showRecommendationPanel && (
                       <div className="text-gray-700 space-y-3 pt-2">
                         {wizardData.primaryBusinessModel === 'seasonal' && (
-                          <p><strong className="text-gray-900">Seasonal Sites:</strong> We've selected hero sections that highlight lifestyle benefits and community, plus sections showcasing seasonal perks like storage and year-round amenities.</p>
+                          <p><strong className="text-gray-900">Seasonal Sites:</strong> We've selected hero sections that highlight lifestyle benefits and community, plus sections showcasing seasonal perks like storage and amenities.</p>
                         )}
                         {wizardData.primaryBusinessModel === 'overnight' && (
                           <p><strong className="text-gray-900">Overnight Camping:</strong> Your recommendations focus on quick booking flows, stay type comparisons, and availability-focused CTAs to capture spontaneous travelers.</p>

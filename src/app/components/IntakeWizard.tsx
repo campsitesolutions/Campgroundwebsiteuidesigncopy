@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useWizard } from '../context/WizardContext';
 import { Check } from 'lucide-react';
@@ -15,6 +15,11 @@ export function IntakeWizard() {
   const [showSummary, setShowSummary] = useState(false);
   const { wizardData, completeWizard } = useWizard();
   const navigate = useNavigate();
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep, showSummary]);
 
   const handleNext = () => {
     if (currentStep < TOTAL_STEPS) {

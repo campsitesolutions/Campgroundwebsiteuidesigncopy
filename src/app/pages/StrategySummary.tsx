@@ -86,6 +86,9 @@ export function StrategySummary() {
           wizardData.highlights.length > 0 && `Highlights: ${wizardData.highlights.map(h => formatHighlight(h)).join(', ')}`,
         ].filter(Boolean).join('\n');
 
+        // Generate preview link
+        const previewLink = `${window.location.origin}/my-layout`;
+
         const templateParams = {
           parkName: wizardData.campgroundName,
           contactName: wizardData.yourName || 'Not provided',
@@ -104,6 +107,7 @@ export function StrategySummary() {
           recommendedSections: recommendedSections.map((s, i) => `${i + 1}. ${s!.name}`).join('\n'),
           strategicRationale: strategicRationale,
           sectionCount: recommendedSections.length,
+          previewLink: previewLink,
         };
 
         console.log('📧 Sending Strategy Summary email with params:', templateParams);

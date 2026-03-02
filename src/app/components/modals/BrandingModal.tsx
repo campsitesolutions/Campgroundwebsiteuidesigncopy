@@ -114,7 +114,7 @@ export function BrandingModal({ currentBranding, onSave, onClose }: BrandingModa
 
   const modalContent = (
     <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/50 flex items-start justify-center p-4 overflow-y-auto"
       style={{ zIndex: 9999 }}
       onClick={(e) => {
         // Close modal when clicking backdrop
