@@ -61,7 +61,18 @@ export function getCTATexts(wizardData: WizardData): CTATexts {
     };
   }
   
-  // OVERNIGHT (WITH OR WITHOUT OTHER MODELS)
+  // SEASONAL + OVERNIGHT (DUAL-MODEL LOGIC)
+  if (allowedModels.has('seasonal') && allowedModels.has('overnight')) {
+    return {
+      primary: 'Book Now',
+      secondary: secondaryCTA,
+      banner: 'Book Now',
+      bannerHeadline: 'Make It Your Seasonal Home — or Plan a Weekend Escape',
+      bannerSubtext: 'Book a seasonal site for the full season or reserve an overnight stay for your next getaway.',
+    };
+  }
+  
+  // OVERNIGHT (WITH OR WITHOUT OTHER MODELS - BUT NOT SEASONAL)
   if (allowedModels.has('overnight')) {
     return {
       primary: 'Book Now',

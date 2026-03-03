@@ -148,6 +148,11 @@ export function getDefaultTagline(wizardData: WizardData): string {
     return 'Find your dream RV with quality inventory and expert service.';
   }
   
+  // Seasonal + Overnight (dual-model)
+  if (allowedModels.has('seasonal') && allowedModels.has('overnight')) {
+    return 'Seasonal sites for your home away from home, and overnight camping for weekend adventures.';
+  }
+  
   // Multiple models - build custom tagline
   const models: string[] = [];
   if (allowedModels.has('seasonal')) models.push('seasonal sites');
@@ -189,6 +194,11 @@ export function getDefaultHeadline(wizardData: WizardData): string {
   // Trailer sales-only
   if (allowedModels.size === 1 && allowedModels.has('trailer-sales')) {
     return 'Find Your Dream RV';
+  }
+  
+  // Seasonal + Overnight (dual-model)
+  if (allowedModels.has('seasonal') && allowedModels.has('overnight')) {
+    return 'Seasonal Sites & Overnight Camping';
   }
   
   // Multiple models
