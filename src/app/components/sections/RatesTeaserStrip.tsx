@@ -1,18 +1,13 @@
 import { DollarSign, Calendar, Users, Home } from 'lucide-react';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { getContrastTextColor } from '../../utils/colorUtils';
-import { useWizard, getAllowedModels } from '../../context/WizardContext';
 
 export function RatesTeaserStrip() {
   const palette = useColorPalette();
   const accentTextColor = getContrastTextColor(palette.colors.accent);
-  const { wizardData } = useWizard();
   
-  // Compute allowed models using helper
-  const allowedModels = getAllowedModels(wizardData);
-  
-  // Define all rate blocks
-  const allRates = [
+  // Define all rate blocks - always show all three
+  const rates = [
     {
       model: 'overnight',
       icon: DollarSign,
@@ -36,17 +31,6 @@ export function RatesTeaserStrip() {
     },
   ];
   
-  // Filter rates based on allowed models
-  const rates = allRates.filter(rate => allowedModels.has(rate.model));
-  
-  // If no rates to show, return null
-  if (rates.length === 0) {
-    return null;
-  }
-  
-  // Add a "Group Rates" or "Contact Us" block if we have room and multiple models
-  const showContactBlock = rates.length < 3;
-  
   return (
     <section 
       className="py-12"
@@ -56,7 +40,7 @@ export function RatesTeaserStrip() {
       }}
     >
       <div className="container mx-auto px-4">
-        <div className={`grid gap-8 text-center ${rates.length === 1 ? 'md:grid-cols-1 max-w-md mx-auto' : rates.length === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
+        <div className="grid gap-8 text-center md:grid-cols-3">
           {rates.map((rate) => {
             const Icon = rate.icon;
             return (
@@ -68,14 +52,6 @@ export function RatesTeaserStrip() {
               </div>
             );
           })}
-          {showContactBlock && (
-            <div>
-              <Users className="w-12 h-12 mx-auto mb-3" />
-              <p className="text-sm uppercase tracking-wide mb-1 opacity-80">Group Rates</p>
-              <p className="text-3xl font-bold">Contact Us</p>
-              <p className="opacity-80 mt-1">Special pricing available</p>
-            </div>
-          )}
         </div>
       </div>
     </section>

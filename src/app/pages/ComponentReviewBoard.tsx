@@ -3,6 +3,10 @@ import { Header } from '../components/layout/Header';
 import { Footer } from '../components/sections/Footer';
 
 // Lazy load all section components to isolate import errors
+const NavigationCentered = lazy(() => import('../components/sections/NavigationCentered').then(m => ({ default: m.NavigationCentered })));
+const NavigationWithCTA = lazy(() => import('../components/sections/NavigationWithCTA').then(m => ({ default: m.NavigationWithCTA })));
+const NavigationWithTopBar = lazy(() => import('../components/sections/NavigationWithTopBar').then(m => ({ default: m.NavigationWithTopBar })));
+
 const Hero = lazy(() => import('../components/sections/Hero').then(m => ({ default: m.Hero })));
 const HeroCinematicOverlay = lazy(() => import('../components/sections/HeroCinematicOverlay').then(m => ({ default: m.HeroCinematicOverlay })));
 const HeroSplitLayout = lazy(() => import('../components/sections/HeroSplitLayout').then(m => ({ default: m.HeroSplitLayout })));
@@ -14,10 +18,17 @@ const StayTypeCardsImageOverlay = lazy(() => import('../components/sections/Stay
 const StayTypeCardsStructured = lazy(() => import('../components/sections/StayTypeCardsStructured').then(m => ({ default: m.StayTypeCardsStructured })));
 const StayTypeCardsSpotlight = lazy(() => import('../components/sections/StayTypeCardsSpotlight').then(m => ({ default: m.StayTypeCardsSpotlight })));
 
+const RatesTeaserStrip = lazy(() => import('../components/sections/RatesTeaserStrip').then(m => ({ default: m.RatesTeaserStrip })));
+const AmenitiesGrid = lazy(() => import('../components/sections/AmenitiesGrid').then(m => ({ default: m.AmenitiesGrid })));
+
 const SeasonalBenefits = lazy(() => import('../components/sections/SeasonalBenefits').then(m => ({ default: m.SeasonalBenefits })));
 const SeasonalBenefitsIconCards = lazy(() => import('../components/sections/SeasonalBenefitsIconCards').then(m => ({ default: m.SeasonalBenefitsIconCards })));
 const SeasonalBenefitsAlternating = lazy(() => import('../components/sections/SeasonalBenefitsAlternating').then(m => ({ default: m.SeasonalBenefitsAlternating })));
 const SeasonalBenefitsStats = lazy(() => import('../components/sections/SeasonalBenefitsStats').then(m => ({ default: m.SeasonalBenefitsStats })));
+
+const OvernightExperienceHighlight = lazy(() => import('../components/sections/OvernightExperienceHighlight').then(m => ({ default: m.OvernightExperienceHighlight })));
+const CottageRentalsHighlight = lazy(() => import('../components/sections/CottageRentalsHighlight').then(m => ({ default: m.CottageRentalsHighlight })));
+const TrailerSalesHighlight = lazy(() => import('../components/sections/TrailerSalesHighlight').then(m => ({ default: m.TrailerSalesHighlight })));
 
 const TrailersGrid = lazy(() => import('../components/sections/TrailersGrid').then(m => ({ default: m.TrailersGrid })));
 const TrailersCleanGrid = lazy(() => import('../components/sections/TrailersCleanGrid').then(m => ({ default: m.TrailersCleanGrid })));
@@ -29,10 +40,16 @@ const GalleryMasonry = lazy(() => import('../components/sections/GalleryMasonry'
 const GalleryUniformGrid = lazy(() => import('../components/sections/GalleryUniformGrid').then(m => ({ default: m.GalleryUniformGrid })));
 const GalleryHorizontalScroll = lazy(() => import('../components/sections/GalleryHorizontalScroll').then(m => ({ default: m.GalleryHorizontalScroll })));
 
+const Reviews = lazy(() => import('../components/sections/Reviews').then(m => ({ default: m.Reviews })));
+const LocalAttractions = lazy(() => import('../components/sections/LocalAttractions').then(m => ({ default: m.LocalAttractions })));
+const FAQ = lazy(() => import('../components/sections/FAQ').then(m => ({ default: m.FAQ })));
+
 const CTABanner = lazy(() => import('../components/sections/CTABanner').then(m => ({ default: m.CTABanner })));
 const CTAImageBackground = lazy(() => import('../components/sections/CTAImageBackground').then(m => ({ default: m.CTAImageBackground })));
 const CTASolidBand = lazy(() => import('../components/sections/CTASolidBand').then(m => ({ default: m.CTASolidBand })));
 const CTASplitLayout = lazy(() => import('../components/sections/CTASplitLayout').then(m => ({ default: m.CTASplitLayout })));
+
+const ContactSection = lazy(() => import('../components/sections/ContactSection').then(m => ({ default: m.ContactSection })));
 
 interface VariationGroup {
   categoryTitle: string;
@@ -43,6 +60,14 @@ interface VariationGroup {
 }
 
 const variationGroups: VariationGroup[] = [
+  {
+    categoryTitle: 'Navigation Variations',
+    variations: [
+      { label: 'Navigation – Centered Links', Component: NavigationCentered },
+      { label: 'Navigation – With CTA Button', Component: NavigationWithCTA },
+      { label: 'Navigation – With Top Info Bar', Component: NavigationWithTopBar },
+    ],
+  },
   {
     categoryTitle: 'Hero Banner Variations',
     variations: [
@@ -63,12 +88,27 @@ const variationGroups: VariationGroup[] = [
     ],
   },
   {
+    categoryTitle: 'Rates & Amenities',
+    variations: [
+      { label: 'Rates Teaser Strip', Component: RatesTeaserStrip },
+      { label: 'Amenities Grid', Component: AmenitiesGrid },
+    ],
+  },
+  {
     categoryTitle: 'Seasonal Benefits Variations',
     variations: [
       { label: 'Seasonal Benefits – Original', Component: SeasonalBenefits },
       { label: 'Seasonal Benefits – Icon Cards', Component: SeasonalBenefitsIconCards },
       { label: 'Seasonal Benefits – Alternating Rows', Component: SeasonalBenefitsAlternating },
       { label: 'Seasonal Benefits – Large Stats', Component: SeasonalBenefitsStats },
+    ],
+  },
+  {
+    categoryTitle: 'Business Model Highlight Sections',
+    variations: [
+      { label: 'Overnight Experience Highlight', Component: OvernightExperienceHighlight },
+      { label: 'Cottage Rentals Highlight', Component: CottageRentalsHighlight },
+      { label: 'Trailer Sales Highlight', Component: TrailerSalesHighlight },
     ],
   },
   {
@@ -90,12 +130,26 @@ const variationGroups: VariationGroup[] = [
     ],
   },
   {
+    categoryTitle: 'Social Proof & Information',
+    variations: [
+      { label: 'Reviews / Testimonials', Component: Reviews },
+      { label: 'Local Attractions', Component: LocalAttractions },
+      { label: 'FAQ Section', Component: FAQ },
+    ],
+  },
+  {
     categoryTitle: 'CTA Banner Variations',
     variations: [
       { label: 'CTA Banner – Gradient', Component: CTABanner },
       { label: 'CTA Banner – Image Background', Component: CTAImageBackground },
       { label: 'CTA Banner – Solid Band', Component: CTASolidBand },
       { label: 'CTA Banner – Split Layout', Component: CTASplitLayout },
+    ],
+  },
+  {
+    categoryTitle: 'Contact Section',
+    variations: [
+      { label: 'Contact Section', Component: ContactSection },
     ],
   },
 ];

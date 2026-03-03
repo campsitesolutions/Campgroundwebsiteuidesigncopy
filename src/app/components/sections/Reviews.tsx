@@ -1,74 +1,27 @@
 import { Star } from 'lucide-react';
-import { useWizard, getAllowedModels } from '../../context/WizardContext';
 
 export function Reviews() {
-  const { wizardData } = useWizard();
-  
-  // Compute allowed models using helper
-  const allowedModels = getAllowedModels(wizardData);
-  
-  // Define all reviews with their associated models
-  const allReviews = [
+  // Define all reviews - always show first 3
+  const reviews = [
     {
-      models: ['seasonal', 'overnight', 'cottage-rentals'],
       name: 'Sarah Johnson',
       location: 'Toronto, ON',
       rating: 5,
       text: "We've been seasonal campers here for 3 years and it's been amazing. The staff is friendly, the sites are well-maintained, and the community is wonderful. Highly recommend!",
     },
     {
-      models: ['overnight', 'seasonal'],
       name: 'Mike Patterson',
       location: 'Ottawa, ON',
       rating: 5,
       text: 'Perfect spot for our family getaways. The kids love the beach and playground. Clean facilities and beautiful grounds. We keep coming back!',
     },
     {
-      models: ['trailer-sales', 'seasonal'],
-      requiresTrailerSales: true, // MUST have trailer-sales to show
       name: 'Linda Chen',
       location: 'Mississauga, ON',
       rating: 5,
       text: 'Bought our trailer here last year and got a seasonal site. Best decision ever! Great value and the location is unbeatable. Love being part of this community.',
     },
-    {
-      models: ['seasonal'],
-      name: 'Robert Martinez',
-      location: 'Hamilton, ON',
-      rating: 5,
-      text: 'Our home away from home for the past 5 summers. The community events are fantastic, and having a seasonal site means we can escape the city whenever we want. Worth every penny!',
-    },
-    {
-      models: ['overnight', 'cottage-rentals'],
-      name: 'Emily White',
-      location: 'London, ON',
-      rating: 5,
-      text: 'Amazing family camping experience! The amenities are top-notch, and the staff goes above and beyond. Our kids are already asking when we can come back!',
-    },
-    {
-      models: ['cottage-rentals'],
-      name: 'David Lee',
-      location: 'Kitchener, ON',
-      rating: 5,
-      text: 'The cottage rental was perfect - clean, cozy, and fully equipped. Beautiful location with great hiking trails nearby. Exactly what we needed for a relaxing getaway.',
-    },
   ];
-  
-  // Filter reviews based on allowed models with strict trailer-sales gating
-  const reviews = allReviews.filter(review => {
-    // If review requires trailer-sales, MUST have trailer-sales in allowedModels
-    if (review.requiresTrailerSales && !allowedModels.has('trailer-sales')) {
-      return false;
-    }
-    
-    // Otherwise, check if ANY of the review's models match allowedModels
-    return review.models.some(model => allowedModels.has(model));
-  }).slice(0, 3); // Take only first 3 matching reviews
-  
-  // If no reviews match, use generic ones
-  if (reviews.length === 0) {
-    return null;
-  }
 
   return (
     <section className="py-16 md:py-20 bg-white">

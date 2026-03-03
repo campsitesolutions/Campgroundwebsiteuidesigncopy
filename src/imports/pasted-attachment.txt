@@ -1,0 +1,64 @@
+Refine and elevate this “Campground Branding” modal to feel premium, calm, and brand-forward rather than tool-like or SaaS-heavy.
+
+Do not change functionality. Improve visual design, hierarchy, and emotional tone only.
+
+Modal Structure Improvements
+
+• Increase modal max width slightly for breathing room
+• Add consistent 32px internal padding
+• Improve vertical rhythm between sections
+• Strengthen section titles using clearer hierarchy
+• Make “Save Branding” the clear primary button
+• Make “Cancel” visually secondary and less dominant
+
+Palette Card Redesign
+
+Redesign each palette option to feel like a mini brand card.
+
+For each palette card:
+• Increase padding to 24–28px
+• Add a full-width primary color strip at the top (40–60px height)
+• Enlarge color swatches and convert to circular format
+• Increase palette name font weight (semibold)
+• Reduce subtitle opacity slightly for hierarchy
+• Improve spacing between name, swatches, and description
+
+Selected state should:
+• Remove blue system outline
+• Use a subtle 3–5% background tint using the palette’s primary color
+• Add soft elevation shadow
+• Include a refined check indicator in the top corner
+
+Ensure all palette cards feel cohesive and premium.
+
+Swatch Styling
+
+• Increase swatch size to 18–20px
+• Make swatches circular
+• Add subtle inner shadow for depth
+• Ensure even spacing between swatches
+
+Preview Section Upgrade
+
+Elevate the “Full Preview with Selected Colors” section to feel like a realistic mini homepage preview.
+
+• Increase container border radius slightly
+• Add soft outer shadow
+• Improve internal spacing consistency
+• Replace generic placeholder text with more lifestyle-focused language
+• Improve button styling consistency inside preview
+• Reduce any overly harsh contrast
+
+Make this section feel like a polished brand preview, not a component demo.
+
+Tone & Copy Framing
+
+Add a short line above palette options:
+
+“Choose the atmosphere you want your park to convey.”
+
+Ensure typography across the modal follows a calm, structured hierarchy aligned with a premium seasonal lifestyle brand.
+
+Do not add new features.
+Do not increase complexity.
+Maintain simplicity and refinement.

@@ -1,36 +1,14 @@
 import { Calendar, Home, Tent, ArrowRight } from 'lucide-react';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useWizard, getAllowedModels } from '../../context/WizardContext';
-import { Button } from '../ui/button';
 
-interface StayType {
-  model: string;
-  icon: typeof Tent;
-  title: string;
-  description: string;
-  features: string[];
-  cta: string;
-  href: string;
-  imageUrl: string;
-}
-
-interface StayTypeCardsStructuredProps {
-  headline?: string;
-  subheadline?: string;
-  stayTypes?: StayType[];
-}
-
-export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
+// Clean 3-column layout with icons, headings, and text CTA links. Minimal and informative design.
+export function StayTypeCardsStructured() {
   const palette = useColorPalette();
-  const { wizardData } = useWizard();
   
-  // Compute allowed models using helper
-  const allowedModels = getAllowedModels(wizardData);
-  
-  const defaultStayTypes: StayType[] = [
+  // ALWAYS show all three stay types - this is promotional content
+  const stayTypes = [
     {
-      model: 'overnight',
       icon: Tent,
       title: 'Overnight Camping',
       description: 'Perfect for weekend getaways and short trips with full hookups and modern amenities.',
@@ -40,7 +18,6 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
       imageUrl: 'https://images.unsplash.com/photo-1605620622858-ea62b0a2059c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
     },
     {
-      model: 'seasonal',
       icon: Calendar,
       title: 'Seasonal Sites',
       description: 'Make us your home for the season with premium amenities and a vibrant community.',
@@ -50,7 +27,6 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
       imageUrl: 'https://images.unsplash.com/photo-1588100249910-3bbdd5cec019?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
     },
     {
-      model: 'cottage-rentals',
       icon: Home,
       title: 'Cottage Rentals',
       description: 'Fully equipped cottages with all the comforts of home for the ultimate camping experience.',
@@ -60,51 +36,21 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
       imageUrl: 'https://images.unsplash.com/photo-1625926144749-11eef44b0cdb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
     },
   ];
-  
-  // Filter to only show allowed models
-  const stayTypes = (props.stayTypes || defaultStayTypes).filter(type => allowedModels.has(type.model));
-  
-  // If no models, return null
-  if (stayTypes.length === 0) {
-    return null;
-  }
-  
-  // Get title based on selection
-  const getTitle = () => {
-    if (stayTypes.length === 1) {
-      if (allowedModels.has('seasonal')) return 'Seasonal Site Options';
-      if (allowedModels.has('overnight')) return 'Camping Options';
-      if (allowedModels.has('cottage-rentals')) return 'Cottage Options';
-    }
-    return 'Choose Your Stay';
-  };
-  
-  const headline = props.headline || getTitle();
-  const subheadline = props.subheadline || 'Whether it\'s a quick getaway or a full season, we have the perfect option for you.';
-
-  // Dynamic grid classes based on number of cards
-  const getGridClass = () => {
-    if (stayTypes.length === 1) return 'grid-cols-1 max-w-md mx-auto';
-    if (stayTypes.length === 2) return 'md:grid-cols-2 max-w-4xl mx-auto';
-    return 'md:grid-cols-3';
-  };
 
   return (
     <section className="py-[88px] bg-gradient-to-b from-white to-[var(--background-muted)]">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          {/* H2: 36px from theme */}
-          <h2 className="mb-4">{headline}</h2>
-          {/* Body: 18px from theme */}
+          <h2 className="mb-4">Choose Your Stay</h2>
           <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
-            {subheadline}
+            Whether it's a quick getaway or a full season, we have the perfect option for you.
           </p>
         </div>
 
-        {/* Cards Grid - Responsive to card count */}
-        <div className={`grid gap-6 ${getGridClass()}`}>
-          {stayTypes.map((type, idx) => {
+        {/* Clean 3-column layout */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {stayTypes.map((type) => {
             const Icon = type.icon;
             return (
               <div
@@ -130,14 +76,13 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
 
                   {/* Title Overlay */}
                   <div className="absolute bottom-4 left-4 right-4">
-                    {/* H3: 24px from theme */}
                     <h3 className="text-white">{type.title}</h3>
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="p-8">
-                  {/* Description - Body: 18px */}
+                  {/* Description */}
                   <p className="text-[var(--text-secondary)] leading-relaxed mb-6">
                     {type.description}
                   </p>
@@ -155,15 +100,15 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
                     ))}
                   </div>
 
-                  {/* CTA Button */}
-                  <Button
-                    variant="ds-secondary"
+                  {/* Text CTA Link - Minimal design */}
+                  <a
                     href={type.href}
-                    className="w-full justify-center"
+                    className="inline-flex items-center gap-2 font-semibold group/link transition-all"
+                    style={{ color: palette.colors.primary }}
                   >
                     {type.cta}
-                    <ArrowRight className="w-5 h-5" />
-                  </Button>
+                    <ArrowRight className="w-5 h-5 group-hover/link:translate-x-1 transition-transform" />
+                  </a>
                 </div>
               </div>
             );

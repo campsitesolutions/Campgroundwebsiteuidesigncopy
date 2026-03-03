@@ -1,6 +1,5 @@
 import { Check } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useWizard, getAllowedModels } from '../../context/WizardContext';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { getContrastTextColor } from '../../utils/colorUtils';
 
@@ -13,22 +12,7 @@ interface TrailerSalesHighlightProps {
 }
 
 export function TrailerSalesHighlight(props: TrailerSalesHighlightProps) {
-  const { wizardData } = useWizard();
   const palette = useColorPalette();
-  
-  // Compute allowed models using helper
-  const allowedModels = getAllowedModels(wizardData);
-  
-  console.log('🔍 TrailerSalesHighlight - allowedModels:', Array.from(allowedModels));
-  
-  // Only render if BOTH seasonal AND trailer-sales are selected
-  const shouldRender = allowedModels.has('seasonal') && allowedModels.has('trailer-sales');
-  
-  console.log('🔍 TrailerSalesHighlight - shouldRender:', shouldRender);
-  
-  if (!shouldRender) {
-    return null;
-  }
   
   const headline = props.headline || 'Find Your Perfect Trailer';
   const description = props.description || 
