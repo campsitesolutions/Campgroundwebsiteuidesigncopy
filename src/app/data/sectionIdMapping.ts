@@ -29,6 +29,7 @@ export const SECTION_ID_MAP: Record<string, string> = {
   'seasonal-benefits-icon-cards': 'SEASONAL_ICONS',
   'seasonal-benefits-alternating': 'SEASONAL_ALT',
   'overnight-experience-highlight': 'OVERNIGHT_HIGHLIGHT',
+  'trailer-sales-highlight': 'TRAILER_HIGHLIGHT',
 
   // Trailers
   'trailers': 'TRAILER_ORIGINAL',

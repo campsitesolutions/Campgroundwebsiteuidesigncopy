@@ -63,11 +63,93 @@ export function SectionLibrary() {
   }, [wizardData.isCompleted, wizardData.primaryBusinessModel, wizardData.primaryGoal]);
 
   // Get recommended sections using predefined mapping
-  const recommendedSectionIds = getRecommendedStack(
+  let recommendedSectionIds = getRecommendedStack(
     wizardData.primaryBusinessModel,
     wizardData.primaryGoal,
     wizardData // Pass full wizard data for intelligent analysis
   );
+
+  // 🔥 HARD-INSERT LOGIC: Add highlight sections for multi-model configurations
+  const rawModels = new Set<string>();
+  if (wizardData.primaryBusinessModel) {
+    rawModels.add(wizardData.primaryBusinessModel);
+  }
+  wizardData.secondaryBusinessModels.forEach(model => rawModels.add(model));
+
+  console.log('🔍 SectionLibrary - Raw Models:', Array.from(rawModels));
+
+  // If both seasonal and overnight are selected, ensure OvernightExperienceHighlight is included
+  if (rawModels.has('seasonal') && rawModels.has('overnight')) {
+    const overnightHighlightId = 'overnight-experience-highlight';
+    
+    // Remove it if it already exists (to prevent duplicates)
+    recommendedSectionIds = recommendedSectionIds.filter(id => id !== overnightHighlightId);
+    
+    // Find insertion point: after last seasonal-benefits-* section, before rates-teaser-strip
+    const seasonalBenefitsIndices = recommendedSectionIds
+      .map((id, idx) => id.startsWith('seasonal-benefits') ? idx : -1)
+      .filter(idx => idx !== -1);
+    
+    const ratesIndex = recommendedSectionIds.indexOf('rates-teaser-strip');
+    
+    let insertionIndex = -1;
+    if (seasonalBenefitsIndices.length > 0) {
+      insertionIndex = Math.max(...seasonalBenefitsIndices) + 1;
+      console.log('✅ SectionLibrary: Inserting OVERNIGHT HIGHLIGHT AFTER seasonal benefits at index:', insertionIndex);
+    } else if (ratesIndex !== -1) {
+      insertionIndex = ratesIndex;
+      console.log('✅ SectionLibrary: Inserting OVERNIGHT HIGHLIGHT BEFORE rates at index:', insertionIndex);
+    } else {
+      const amenitiesIndex = recommendedSectionIds.indexOf('amenities-grid');
+      if (amenitiesIndex !== -1) {
+        insertionIndex = amenitiesIndex + 1;
+        console.log('✅ SectionLibrary: Inserting OVERNIGHT HIGHLIGHT AFTER amenities at index:', insertionIndex);
+      }
+    }
+    
+    if (insertionIndex !== -1) {
+      recommendedSectionIds.splice(insertionIndex, 0, overnightHighlightId);
+      console.log('✅ SectionLibrary: INSERTED overnight-experience-highlight at index:', insertionIndex);
+    }
+  }
+
+  // If both seasonal and trailer-sales are selected, ensure TrailerSalesHighlight is included
+  if (rawModels.has('seasonal') && rawModels.has('trailer-sales')) {
+    console.log('🚀 SectionLibrary: CONDITION MET - Both seasonal and trailer-sales detected!');
+    const trailerSalesHighlightId = 'trailer-sales-highlight';
+    
+    // Remove it if it already exists (to prevent duplicates)
+    recommendedSectionIds = recommendedSectionIds.filter(id => id !== trailerSalesHighlightId);
+    
+    // Find insertion point: after last seasonal-benefits-* section, before rates-teaser-strip
+    const seasonalBenefitsIndices = recommendedSectionIds
+      .map((id, idx) => id.startsWith('seasonal-benefits') ? idx : -1)
+      .filter(idx => idx !== -1);
+    
+    const ratesIndex = recommendedSectionIds.indexOf('rates-teaser-strip');
+    
+    let insertionIndex = -1;
+    if (seasonalBenefitsIndices.length > 0) {
+      insertionIndex = Math.max(...seasonalBenefitsIndices) + 1;
+      console.log('✅ SectionLibrary: Inserting TRAILER SALES HIGHLIGHT AFTER seasonal benefits at index:', insertionIndex);
+    } else if (ratesIndex !== -1) {
+      insertionIndex = ratesIndex;
+      console.log('✅ SectionLibrary: Inserting TRAILER SALES HIGHLIGHT BEFORE rates at index:', insertionIndex);
+    } else {
+      const amenitiesIndex = recommendedSectionIds.indexOf('amenities-grid');
+      if (amenitiesIndex !== -1) {
+        insertionIndex = amenitiesIndex + 1;
+        console.log('✅ SectionLibrary: Inserting TRAILER SALES HIGHLIGHT AFTER amenities at index:', insertionIndex);
+      }
+    }
+    
+    if (insertionIndex !== -1) {
+      recommendedSectionIds.splice(insertionIndex, 0, trailerSalesHighlightId);
+      console.log('✅ SectionLibrary: INSERTED trailer-sales-highlight at index:', insertionIndex);
+    }
+  }
+
+  console.log('📋 SectionLibrary - FINAL recommendedSectionIds:', recommendedSectionIds);
 
   // Filter out any section IDs that don't exist in the library
   const validRecommendedSectionIds = recommendedSectionIds.filter(id => 

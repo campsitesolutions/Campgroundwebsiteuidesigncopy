@@ -1,0 +1,68 @@
+❌ NOT adding OVERNIGHT_HIGHLIGHT - conditions not met
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📍 Positioning OVERNIGHT_HIGHLIGHT: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 applyMultiModelRules called: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ❌ NOT adding OVERNIGHT_HIGHLIGHT - conditions not met
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📍 Positioning OVERNIGHT_HIGHLIGHT: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 applyMultiModelRules called: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ❌ NOT adding OVERNIGHT_HIGHLIGHT - conditions not met
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📍 Positioning OVERNIGHT_HIGHLIGHT: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 StrategySummary - Allowed Models (converted): Array(2)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 StrategySummary - Raw Models: Array(2)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 PRIMARY MODEL: seasonal
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 SECONDARY MODELS: Array(1)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 StrategySummary - Recommended Sections BEFORE insertion: Array(9)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🚀 CONDITION MET: Both seasonal and trailer-sales detected!
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 Looking for insertion point in sections: Array(10)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 Found seasonal-benefits sections at indices: Array(1)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 Found rates-teaser-strip at index: 4
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ✅ Inserting TRAILER SALES HIGHLIGHT AFTER seasonal benefits at index: 3
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ✅ INSERTED trailer-sales-highlight at index: 3
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 StrategySummary - FINAL SECTIONS: Array(10)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 applyMultiModelRules called: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ❌ NOT adding OVERNIGHT_HIGHLIGHT - conditions not met
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📍 Positioning OVERNIGHT_HIGHLIGHT: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 StrategySummary - Allowed Models (converted): Array(2)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 StrategySummary - Raw Models: Array(2)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 PRIMARY MODEL: seasonal
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 SECONDARY MODELS: Array(1)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 StrategySummary - Recommended Sections BEFORE insertion: Array(9)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🚀 CONDITION MET: Both seasonal and trailer-sales detected!
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 Looking for insertion point in sections: Array(10)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 Found seasonal-benefits sections at indices: Array(1)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 Found rates-teaser-strip at index: 4
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ✅ Inserting TRAILER SALES HIGHLIGHT AFTER seasonal benefits at index: 3
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ✅ INSERTED trailer-sales-highlight at index: 3
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 StrategySummary - FINAL SECTIONS: Array(10)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 applyMultiModelRules called: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ❌ NOT adding OVERNIGHT_HIGHLIGHT - conditions not met
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📍 Positioning OVERNIGHT_HIGHLIGHT: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 applyMultiModelRules called: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ❌ NOT adding OVERNIGHT_HIGHLIGHT - conditions not met
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📍 Positioning OVERNIGHT_HIGHLIGHT: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 StrategySummary - Allowed Models (converted): Array(2)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 StrategySummary - Raw Models: Array(2)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 PRIMARY MODEL: seasonal
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 SECONDARY MODELS: Array(1)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 StrategySummary - Recommended Sections BEFORE insertion: Array(9)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🚀 CONDITION MET: Both seasonal and trailer-sales detected!
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 Looking for insertion point in sections: Array(10)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 Found seasonal-benefits sections at indices: Array(1)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 Found rates-teaser-strip at index: 4
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ✅ Inserting TRAILER SALES HIGHLIGHT AFTER seasonal benefits at index: 3
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ✅ INSERTED trailer-sales-highlight at index: 3
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 StrategySummary - FINAL SECTIONS: Array(10)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 applyMultiModelRules called: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ❌ NOT adding OVERNIGHT_HIGHLIGHT - conditions not met
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📍 Positioning OVERNIGHT_HIGHLIGHT: Object
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 StrategySummary - Allowed Models (converted): Array(2)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 StrategySummary - Raw Models: Array(2)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 PRIMARY MODEL: seasonal
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 SECONDARY MODELS: Array(1)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 StrategySummary - Recommended Sections BEFORE insertion: Array(9)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🚀 CONDITION MET: Both seasonal and trailer-sales detected!
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 Looking for insertion point in sections: Array(10)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 Found seasonal-benefits sections at indices: Array(1)
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 🔍 Found rates-teaser-strip at index: 4
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ✅ Inserting TRAILER SALES HIGHLIGHT AFTER seasonal benefits at index: 3
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 ✅ INSERTED trailer-sales-highlight at index: 3
+code_components_preview_iframe-e57eefd14ff1834e.min.js.br:28 📋 StrategySummary - FINAL SECTIONS: Array(10)

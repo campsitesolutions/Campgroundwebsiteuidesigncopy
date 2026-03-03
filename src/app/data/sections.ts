@@ -201,6 +201,16 @@ export const sections: SectionConfig[] = [
     component: 'OvernightExperienceHighlight',
   },
   {
+    id: 'trailer-sales-highlight',
+    name: 'Trailer Sales Highlight',
+    description: 'Two-column layout highlighting trailer sales option when both seasonal and trailer sales are offered. Only renders for dual-model configurations.',
+    tags: {
+      businessModel: ['seasonal', 'trailers'],
+      goal: ['bookings', 'inquiries'],
+    },
+    component: 'TrailerSalesHighlight',
+  },
+  {
     id: 'trailers-grid',
     name: 'Trailers for Sale - Original',
     description: 'Grid layout showcasing park model trailers for sale. Traditional design with image, title, and specs.',
