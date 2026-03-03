@@ -155,6 +155,41 @@ if (hasCottageCard) {
   results.passed.push(`✅ PASS: Cottage Rentals card not found`);
 }
 
+console.log('\n📋 Test 6: Trailer Internal Consistency');
+console.log('─────────────────────────────────────────────────────');
+
+// Check for trailer-related content
+const hasLindaChen = body.includes('linda chen');
+const hasTrailerFooterLink = body.includes('trailers for sale');
+const hasViewTrailersCTA = body.includes('view trailers');
+const hasBoughtTrailer = body.includes('bought our trailer');
+
+if (hasLindaChen || hasBoughtTrailer) {
+  // If Linda Chen or trailer mentions appear, must have trailer links
+  if (hasTrailerFooterLink) {
+    results.passed.push(`✅ PASS: Linda Chen/trailer review shown AND "Trailers for Sale" footer link present (consistent)`);
+  } else {
+    results.failed.push(`❌ FAIL: Linda Chen/trailer review shown BUT missing "Trailers for Sale" footer link (INCONSISTENT)`);
+  }
+  
+  // Note: View Trailers CTA is optional (depends on secondary CTA visibility)
+  if (hasViewTrailersCTA) {
+    results.passed.push(`✅ PASS: "View Trailers" CTA found (consistent with trailer content)`);
+  }
+} else {
+  // If Linda Chen NOT shown, must NOT have trailer-related content
+  if (!hasTrailerFooterLink && !hasViewTrailersCTA) {
+    results.passed.push(`✅ PASS: NO Linda Chen AND NO trailer links (consistent)`);
+  } else {
+    if (hasTrailerFooterLink) {
+      results.failed.push(`❌ FAIL: NO Linda Chen review BUT found "Trailers for Sale" footer link (INCONSISTENT)`);
+    }
+    if (hasViewTrailersCTA) {
+      results.failed.push(`❌ FAIL: NO Linda Chen review BUT found "View Trailers" CTA (INCONSISTENT)`);
+    }
+  }
+}
+
 // Print Results
 console.log('\n═══════════════════════════════════════════════════════');
 console.log('📊 TEST RESULTS SUMMARY');

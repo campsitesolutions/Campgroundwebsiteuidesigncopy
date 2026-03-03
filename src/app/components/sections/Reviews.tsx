@@ -29,6 +29,7 @@ export function Reviews() {
     },
     {
       models: ['trailer-sales', 'seasonal'],
+      requiresTrailerSales: true, // MUST have trailer-sales to show
       name: 'Linda Chen',
       location: 'Mississauga, ON',
       rating: 5,
@@ -57,10 +58,16 @@ export function Reviews() {
     },
   ];
   
-  // Filter reviews based on allowed models
-  const reviews = allReviews.filter(review => 
-    review.models.some(model => allowedModels.has(model))
-  ).slice(0, 3); // Take only first 3 matching reviews
+  // Filter reviews based on allowed models with strict trailer-sales gating
+  const reviews = allReviews.filter(review => {
+    // If review requires trailer-sales, MUST have trailer-sales in allowedModels
+    if (review.requiresTrailerSales && !allowedModels.has('trailer-sales')) {
+      return false;
+    }
+    
+    // Otherwise, check if ANY of the review's models match allowedModels
+    return review.models.some(model => allowedModels.has(model));
+  }).slice(0, 3); // Take only first 3 matching reviews
   
   // If no reviews match, use generic ones
   if (reviews.length === 0) {
