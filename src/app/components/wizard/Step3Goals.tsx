@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useWizard, Goal, Audience } from '../../context/WizardContext';
-import { Target, Users, Heart, UserCircle, Mountain } from 'lucide-react';
+import { useWizard, Goal, Audience, getAllowedModels } from '../../context/WizardContext';
+import { Target, Users, Heart, UserCircle, Mountain, AlertCircle } from 'lucide-react';
 
 interface Step3GoalsProps {
   onNext: () => void;
@@ -24,12 +24,25 @@ const audiences: { id: Audience; label: string; icon: typeof Users }[] = [
 export function Step3Goals({ onNext, onBack }: Step3GoalsProps) {
   const { wizardData, updateWizardData } = useWizard();
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Get allowed models to check for trailer-sales
+  const allowedModels = getAllowedModels(wizardData);
+  const hasTrailerSales = allowedModels.has('trailer-sales');
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
     if (!wizardData.primaryGoal) {
       newErrors.primaryGoal = 'Please select your primary goal';
+    }
+    
+    // GUARDRAIL: Block if Trailer Leads selected but trailer-sales not enabled in Step 2
+    if (wizardData.primaryGoal === 'trailer-leads' && !hasTrailerSales) {
+      newErrors.primaryGoal = 'Trailer Leads requires Trailer Sales to be enabled in Step 2.';
+    }
+    
+    if (wizardData.secondaryGoal === 'trailer-leads' && !hasTrailerSales) {
+      newErrors.secondaryGoal = 'Trailer Leads requires Trailer Sales to be enabled in Step 2.';
     }
 
     setErrors(newErrors);
@@ -121,6 +134,9 @@ export function Step3Goals({ onNext, onBack }: Step3GoalsProps) {
               </option>
             ))}
         </select>
+        {errors.secondaryGoal && (
+          <p className="text-red-600 text-sm mt-2">{errors.secondaryGoal}</p>
+        )}
       </div>
 
       {/* Target Audiences */}

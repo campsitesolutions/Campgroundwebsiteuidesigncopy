@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/sections/Footer';
 import { sections } from '../data/sections';
@@ -9,7 +9,7 @@ import { BrandingModal } from '../components/modals/BrandingModal';
 import { SectionPreviewModal } from '../components/modals/SectionPreviewModal';
 import { getColorPalette } from '../data/colorPalettes';
 import { SectionConfig } from '../data/sections';
-import { useWizard } from '../context/WizardContext';
+import { useWizard, getAllowedModels } from '../context/WizardContext';
 import { getRecommendedStack, shouldHideByDefault } from '../data/recommendationMapping';
 
 export function SectionLibrary() {
@@ -37,124 +37,137 @@ export function SectionLibrary() {
     }
   }, [wizardData.isCompleted, wizardData.primaryGoal, wizardData.campgroundName, setWizardGoal, setCampgroundName]);
 
+  // 🔥 CALCULATE RECOMMENDATIONS FIRST (memoized to prevent infinite loops)
+  const validRecommendedSectionIds = useMemo(() => {
+    // Get recommended sections using predefined mapping
+    let recommendedSectionIds = getRecommendedStack(
+      wizardData.primaryBusinessModel,
+      wizardData.primaryGoal,
+      wizardData // Pass full wizard data for intelligent analysis
+    );
+
+    // 🔥 HARD-INSERT LOGIC: Add highlight sections for multi-model configurations
+    const rawModels = new Set<string>();
+    if (wizardData.primaryBusinessModel) {
+      rawModels.add(wizardData.primaryBusinessModel);
+    }
+    wizardData.secondaryBusinessModels.forEach(model => rawModels.add(model));
+
+    console.log('🔍 SectionLibrary - Raw Models:', Array.from(rawModels));
+
+    // Insert all applicable highlight sections in consistent order:
+    // 1) OvernightExperienceHighlight
+    // 2) CottageRentalsHighlight  
+    // 3) TrailerSalesHighlight
+    const highlightsToInsert: string[] = [];
+    
+    // Check conditions and build ordered list of highlights
+    if (rawModels.has('seasonal') && rawModels.has('overnight')) {
+      console.log('🚀 SectionLibrary: CONDITION MET - Both seasonal and overnight detected!');
+      highlightsToInsert.push('overnight-experience-highlight');
+    }
+    
+    if (rawModels.has('seasonal') && rawModels.has('cottage-rentals')) {
+      console.log('🚀 SectionLibrary: CONDITION MET - Both seasonal and cottage-rentals detected!');
+      highlightsToInsert.push('cottage-rentals-highlight');
+    }
+    
+    if (rawModels.has('seasonal') && rawModels.has('trailer-sales')) {
+      console.log('🚀 SectionLibrary: CONDITION MET - Both seasonal and trailer-sales detected!');
+      highlightsToInsert.push('trailer-sales-highlight');
+    }
+    
+    // If we have any highlights to insert
+    if (highlightsToInsert.length > 0) {
+      console.log('📋 SectionLibrary: Highlights to insert in order:', highlightsToInsert);
+      
+      // Remove all highlights first (prevent duplicates)
+      recommendedSectionIds = recommendedSectionIds.filter(id => 
+        !highlightsToInsert.includes(id)
+      );
+      
+      // Find insertion point: after last seasonal-benefits-* section, before rates-teaser-strip
+      const seasonalBenefitsIndices = recommendedSectionIds
+        .map((id, idx) => id.startsWith('seasonal-benefits') ? idx : -1)
+        .filter(idx => idx !== -1);
+      
+      const ratesIndex = recommendedSectionIds.indexOf('rates-teaser-strip');
+      
+      let insertionIndex = -1;
+      if (seasonalBenefitsIndices.length > 0) {
+        // Insert after the last seasonal benefits section
+        insertionIndex = Math.max(...seasonalBenefitsIndices) + 1;
+        console.log('✅ SectionLibrary: Inserting highlights AFTER seasonal benefits at index:', insertionIndex);
+      } else if (ratesIndex !== -1) {
+        // Insert before rates if no seasonal sections found
+        insertionIndex = ratesIndex;
+        console.log('✅ SectionLibrary: Inserting highlights BEFORE rates at index:', insertionIndex);
+      } else {
+        // Insert after amenities grid as fallback
+        const amenitiesIndex = recommendedSectionIds.indexOf('amenities-grid');
+        if (amenitiesIndex !== -1) {
+          insertionIndex = amenitiesIndex + 1;
+          console.log('✅ SectionLibrary: Inserting highlights AFTER amenities at index:', insertionIndex);
+        }
+      }
+      
+      if (insertionIndex !== -1) {
+        // Insert all highlights in order at the same insertion point
+        recommendedSectionIds.splice(insertionIndex, 0, ...highlightsToInsert);
+        console.log('✅ SectionLibrary: INSERTED highlights at index:', insertionIndex, '→', highlightsToInsert);
+      } else {
+        console.warn('⚠️ SectionLibrary: Could not find suitable insertion point for highlights');
+      }
+    }
+
+    console.log('📋 SectionLibrary - FINAL recommendedSectionIds:', recommendedSectionIds);
+
+    // Filter out any section IDs that don't exist in the library
+    return recommendedSectionIds.filter(id => 
+      sections.some(section => section.id === id)
+    );
+  }, [wizardData.primaryBusinessModel, wizardData.primaryGoal, wizardData.secondaryBusinessModels]);
+
   // Auto-preselect recommended sections when wizard is completed (only once)
   useEffect(() => {
+    console.log('🔍 Auto-preselect effect triggered');
+    console.log('  - wizardData.isCompleted:', wizardData.isCompleted);
+    console.log('  - validRecommendedSectionIds.length:', validRecommendedSectionIds.length);
+    console.log('  - validRecommendedSectionIds:', validRecommendedSectionIds);
+    
     if (wizardData.isCompleted && validRecommendedSectionIds.length > 0) {
-      // Create a key based on business model and goal to track if we've preselected for this combination
-      const preselectionKey = `${wizardData.primaryBusinessModel}-${wizardData.primaryGoal}`;
+      // Create a key based on business model, goal, AND secondary models to track if we've preselected for this combination
+      const secondaryModelsKey = wizardData.secondaryBusinessModels.sort().join(',');
+      const preselectionKey = `${wizardData.primaryBusinessModel}-${wizardData.primaryGoal}-${secondaryModelsKey}`;
       const hasPreselected = localStorage.getItem('recommendedPreselected');
+      
+      console.log('  - preselectionKey:', preselectionKey);
+      console.log('  - hasPreselected:', hasPreselected);
       
       // Only preselect if we haven't already done it for this specific combination
       if (hasPreselected !== preselectionKey) {
+        console.log('✅ Auto-preselecting sections...');
         // Clear existing selections before adding new recommended ones
         // This ensures the user gets a fresh recommended stack if they change their wizard answers
         
         // Add all recommended sections
         validRecommendedSectionIds.forEach(id => {
           if (!isSelected(id)) {
+            console.log(`  ✅ Adding section: ${id}`);
             addSection(id);
+          } else {
+            console.log(`  ⏭️  Skipping (already selected): ${id}`);
           }
         });
         
         // Mark as preselected with the specific combination
         localStorage.setItem('recommendedPreselected', preselectionKey);
+        console.log('✅ Auto-preselection complete');
+      } else {
+        console.log('⏭️  Auto-preselection skipped (already done for this combination)');
       }
     }
-  }, [wizardData.isCompleted, wizardData.primaryBusinessModel, wizardData.primaryGoal]);
-
-  // Get recommended sections using predefined mapping
-  let recommendedSectionIds = getRecommendedStack(
-    wizardData.primaryBusinessModel,
-    wizardData.primaryGoal,
-    wizardData // Pass full wizard data for intelligent analysis
-  );
-
-  // 🔥 HARD-INSERT LOGIC: Add highlight sections for multi-model configurations
-  const rawModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    rawModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => rawModels.add(model));
-
-  console.log('🔍 SectionLibrary - Raw Models:', Array.from(rawModels));
-
-  // If both seasonal and overnight are selected, ensure OvernightExperienceHighlight is included
-  if (rawModels.has('seasonal') && rawModels.has('overnight')) {
-    const overnightHighlightId = 'overnight-experience-highlight';
-    
-    // Remove it if it already exists (to prevent duplicates)
-    recommendedSectionIds = recommendedSectionIds.filter(id => id !== overnightHighlightId);
-    
-    // Find insertion point: after last seasonal-benefits-* section, before rates-teaser-strip
-    const seasonalBenefitsIndices = recommendedSectionIds
-      .map((id, idx) => id.startsWith('seasonal-benefits') ? idx : -1)
-      .filter(idx => idx !== -1);
-    
-    const ratesIndex = recommendedSectionIds.indexOf('rates-teaser-strip');
-    
-    let insertionIndex = -1;
-    if (seasonalBenefitsIndices.length > 0) {
-      insertionIndex = Math.max(...seasonalBenefitsIndices) + 1;
-      console.log('✅ SectionLibrary: Inserting OVERNIGHT HIGHLIGHT AFTER seasonal benefits at index:', insertionIndex);
-    } else if (ratesIndex !== -1) {
-      insertionIndex = ratesIndex;
-      console.log('✅ SectionLibrary: Inserting OVERNIGHT HIGHLIGHT BEFORE rates at index:', insertionIndex);
-    } else {
-      const amenitiesIndex = recommendedSectionIds.indexOf('amenities-grid');
-      if (amenitiesIndex !== -1) {
-        insertionIndex = amenitiesIndex + 1;
-        console.log('✅ SectionLibrary: Inserting OVERNIGHT HIGHLIGHT AFTER amenities at index:', insertionIndex);
-      }
-    }
-    
-    if (insertionIndex !== -1) {
-      recommendedSectionIds.splice(insertionIndex, 0, overnightHighlightId);
-      console.log('✅ SectionLibrary: INSERTED overnight-experience-highlight at index:', insertionIndex);
-    }
-  }
-
-  // If both seasonal and trailer-sales are selected, ensure TrailerSalesHighlight is included
-  if (rawModels.has('seasonal') && rawModels.has('trailer-sales')) {
-    console.log('🚀 SectionLibrary: CONDITION MET - Both seasonal and trailer-sales detected!');
-    const trailerSalesHighlightId = 'trailer-sales-highlight';
-    
-    // Remove it if it already exists (to prevent duplicates)
-    recommendedSectionIds = recommendedSectionIds.filter(id => id !== trailerSalesHighlightId);
-    
-    // Find insertion point: after last seasonal-benefits-* section, before rates-teaser-strip
-    const seasonalBenefitsIndices = recommendedSectionIds
-      .map((id, idx) => id.startsWith('seasonal-benefits') ? idx : -1)
-      .filter(idx => idx !== -1);
-    
-    const ratesIndex = recommendedSectionIds.indexOf('rates-teaser-strip');
-    
-    let insertionIndex = -1;
-    if (seasonalBenefitsIndices.length > 0) {
-      insertionIndex = Math.max(...seasonalBenefitsIndices) + 1;
-      console.log('✅ SectionLibrary: Inserting TRAILER SALES HIGHLIGHT AFTER seasonal benefits at index:', insertionIndex);
-    } else if (ratesIndex !== -1) {
-      insertionIndex = ratesIndex;
-      console.log('✅ SectionLibrary: Inserting TRAILER SALES HIGHLIGHT BEFORE rates at index:', insertionIndex);
-    } else {
-      const amenitiesIndex = recommendedSectionIds.indexOf('amenities-grid');
-      if (amenitiesIndex !== -1) {
-        insertionIndex = amenitiesIndex + 1;
-        console.log('✅ SectionLibrary: Inserting TRAILER SALES HIGHLIGHT AFTER amenities at index:', insertionIndex);
-      }
-    }
-    
-    if (insertionIndex !== -1) {
-      recommendedSectionIds.splice(insertionIndex, 0, trailerSalesHighlightId);
-      console.log('✅ SectionLibrary: INSERTED trailer-sales-highlight at index:', insertionIndex);
-    }
-  }
-
-  console.log('📋 SectionLibrary - FINAL recommendedSectionIds:', recommendedSectionIds);
-
-  // Filter out any section IDs that don't exist in the library
-  const validRecommendedSectionIds = recommendedSectionIds.filter(id => 
-    sections.some(section => section.id === id)
-  );
+  }, [wizardData.isCompleted, wizardData.primaryBusinessModel, wizardData.primaryGoal, validRecommendedSectionIds, addSection, isSelected]);
 
   // Check if a section is compatible with wizard selections
   const isSectionCompatible = (section: SectionConfig): boolean => {

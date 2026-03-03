@@ -6,7 +6,7 @@ import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { getContrastTextColor } from '../../utils/colorUtils';
 import { useWizard } from '../../context/WizardContext';
-import { getPrimaryCTA } from '../../utils/ctaTextMapper';
+import { getCTATexts } from '../../utils/ctaTextMapper';
 
 interface NavigationWithCTAProps {
   customization?: SectionCustomization;
@@ -24,8 +24,8 @@ export function NavigationWithCTA({ customization = {} }: NavigationWithCTAProps
   const tagline = customization.tagline || 'Your Nature Escape';
   const phone = customization.phone || '555-123-4567';
   
-  // Get model-specific CTA text
-  const ctaText = customization.ctaText || getPrimaryCTA(wizardData);
+  // Get goal-based CTA texts (primary + optional secondary)
+  const ctaTexts = getCTATexts(wizardData);
 
   const accentTextColor = getContrastTextColor(palette.colors.accent);
 
@@ -84,8 +84,21 @@ export function NavigationWithCTA({ customization = {} }: NavigationWithCTAProps
               <Phone className="w-4 h-4 mr-2" />
               <span className="font-medium">{phone}</span>
             </a>
+            
+            {/* Secondary CTA (if set) */}
+            {ctaTexts.secondary && (
+              <a
+                href={ctaTexts.secondaryHref || '#'}
+                className="px-6 py-2.5 rounded-md font-semibold transition-colors border-2 border-white"
+                style={{ color: 'white' }}
+              >
+                {ctaTexts.secondary}
+              </a>
+            )}
+            
+            {/* Primary CTA */}
             <a
-              href="#contact"
+              href={ctaTexts.primaryHref || '#contact'}
               className="px-6 py-2.5 rounded-md font-semibold transition-colors"
               style={{ 
                 backgroundColor: palette.colors.accent,
@@ -94,7 +107,7 @@ export function NavigationWithCTA({ customization = {} }: NavigationWithCTAProps
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = palette.colors.accentHover}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = palette.colors.accent}
             >
-              {ctaText}
+              {ctaTexts.primary}
             </a>
           </div>
 
@@ -127,15 +140,28 @@ export function NavigationWithCTA({ customization = {} }: NavigationWithCTAProps
                 <Phone className="w-4 h-4 mr-2" />
                 <span className="font-medium">{phone}</span>
               </a>
+              
+              {/* Secondary CTA (if set) */}
+              {ctaTexts.secondary && (
+                <a
+                  href={ctaTexts.secondaryHref || '#'}
+                  className="px-6 py-3 rounded-md font-semibold transition-colors text-center border-2 border-white"
+                  style={{ color: 'white' }}
+                >
+                  {ctaTexts.secondary}
+                </a>
+              )}
+              
+              {/* Primary CTA */}
               <a
-                href="#contact"
+                href={ctaTexts.primaryHref || '#contact'}
                 className="px-6 py-3 rounded-md font-semibold transition-colors text-center"
                 style={{ 
                   backgroundColor: palette.colors.accent,
                   color: accentTextColor,
                 }}
               >
-                {ctaText}
+                {ctaTexts.primary}
               </a>
             </div>
           </div>

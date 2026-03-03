@@ -1,19 +1,15 @@
 import { DollarSign, Calendar, Users, Home } from 'lucide-react';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { getContrastTextColor } from '../../utils/colorUtils';
-import { useWizard } from '../../context/WizardContext';
+import { useWizard, getAllowedModels } from '../../context/WizardContext';
 
 export function RatesTeaserStrip() {
   const palette = useColorPalette();
   const accentTextColor = getContrastTextColor(palette.colors.accent);
   const { wizardData } = useWizard();
   
-  // Compute allowed models
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    allowedModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  // Compute allowed models using helper
+  const allowedModels = getAllowedModels(wizardData);
   
   // Define all rate blocks
   const allRates = [

@@ -267,7 +267,7 @@ export function getRecommendedStack(
   applyMultiModelRules(result, allowedModels, primaryBusinessModel);
 
   // STEP 5: Cleanup and finalize
-  const finalStack = cleanupAndFinalize(result);
+  const finalStack = cleanupAndFinalize(result, primaryGoal);
 
   // Convert short IDs back to kebab-case IDs
   return convertToKebabIds(finalStack);
@@ -464,7 +464,7 @@ function applyMultiModelRules(result: RuleResult, allowedModels: Set<string>, pr
 /**
  * STEP 5: Cleanup and finalize
  */
-function cleanupAndFinalize(result: RuleResult): ShortSectionId[] {
+function cleanupAndFinalize(result: RuleResult, primaryGoal: Goal | ''): ShortSectionId[] {
   let sections = Array.from(result.sections);
 
   // Apply AVOID rules (AVOID wins over PREFER)
@@ -543,6 +543,72 @@ function cleanupAndFinalize(result: RuleResult): ShortSectionId[] {
           sections.splice(amenIndex + 1, 0, 'OVERNIGHT_HIGHLIGHT');
         }
       }
+    }
+  }
+  
+  // 🎯 GOAL-BASED PRIORITY BUMPS (Step 3 Ordering Logic)
+  console.log('🎯 Applying goal-based ordering for goal:', primaryGoal);
+  
+  if (primaryGoal === 'bookings') {
+    // Move RatesTeaserStrip earlier (near top, after hero)
+    const ratesIndex = sections.indexOf('RATES');
+    if (ratesIndex !== -1 && ratesIndex > 3) {
+      console.log('📊 BOOKINGS GOAL: Moving RATES from index', ratesIndex, 'to position after hero');
+      sections.splice(ratesIndex, 1);
+      // Insert after nav and hero (skip nav sections which are pinned)
+      const heroIndex = sections.findIndex(id => id.startsWith('HERO_'));
+      const navCount = sections.filter(id => id.startsWith('NAV_')).length;
+      const insertIndex = heroIndex !== -1 ? heroIndex + 1 : navCount + 1;
+      sections.splice(insertIndex, 0, 'RATES');
+    }
+  } else if (primaryGoal === 'inquiries') {
+    // Move Contact section earlier (before Gallery/CTA, but after reviews)
+    const contactIndex = sections.indexOf('CONTACT');
+    const reviewsIndex = sections.indexOf('REVIEWS');
+    const firstGalleryIndex = sections.findIndex(id => id.startsWith('GALLERY_'));
+    
+    // Target position: after REVIEWS, before first GALLERY or CTA
+    if (contactIndex !== -1 && reviewsIndex !== -1) {
+      const targetIndex = firstGalleryIndex !== -1 ? firstGalleryIndex : contactIndex;
+      if (targetIndex < contactIndex) {
+        console.log('📧 INQUIRIES GOAL: Moving CONTACT from index', contactIndex, 'to index', targetIndex);
+        sections.splice(contactIndex, 1);
+        sections.splice(targetIndex, 0, 'CONTACT');
+      }
+    }
+  } else if (primaryGoal === 'trailer-leads') {
+    // Move Trailer sections earlier (TrailerSalesHighlight + Trailer Grid)
+    const trailerSections = sections.filter(id => 
+      id === 'TRAILER_HIGHLIGHT' || id.startsWith('TRAILER_')
+    );
+    
+    if (trailerSections.length > 0) {
+      console.log('🚐 TRAILER LEADS GOAL: Moving trailer sections to early position');
+      
+      // Remove all trailer sections from their current positions
+      sections = sections.filter(id => !trailerSections.includes(id));
+      
+      // Insert after seasonal benefits or after hero (but after nav sections)
+      const seasonalSections = sections.filter(id => id.startsWith('SEASONAL_'));
+      const navCount = sections.filter(id => id.startsWith('NAV_')).length;
+      let insertIndex = navCount + 1; // Default: after nav sections + hero
+      
+      if (seasonalSections.length > 0) {
+        const lastSeasonalIndex = sections.lastIndexOf(seasonalSections[seasonalSections.length - 1]);
+        insertIndex = lastSeasonalIndex + 1;
+      } else {
+        const heroIndex = sections.findIndex(id => id.startsWith('HERO_'));
+        if (heroIndex !== -1) {
+          insertIndex = heroIndex + 1;
+        }
+      }
+      
+      // Insert trailer sections in order
+      trailerSections.forEach((id, idx) => {
+        sections.splice(insertIndex + idx, 0, id);
+      });
+      
+      console.log('✅ Placed trailer sections starting at index', insertIndex);
     }
   }
 

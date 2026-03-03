@@ -1,117 +1,97 @@
-import { BusinessModel, Goal, WizardData } from '../context/WizardContext';
+import { BusinessModel, Goal, WizardData, getAllowedModels } from '../context/WizardContext';
 
 /**
- * CTA TEXT MAPPER - Maps business models + goals to appropriate CTA text
+ * CTA TEXT MAPPER - Maps goals to appropriate CTA text
  * 
- * NEW RULES (Updated Policy):
- * - Primary CTA is ALWAYS "Book Now" (regardless of model or goal)
- * - Secondary CTA:
- *   - If Trailer Sales selected: "View Trailers"
- *   - Otherwise: "Request Info" or omit
- * - Banner headlines/subtext adjusted for seasonal context when needed
+ * RULES:
+ * - Primary Goal controls: primary CTA label + link
+ * - Secondary Goal controls: secondary CTA button (if set)
+ * - CTA MAPPING:
+ *   - Bookings -> "Book Now" (link to booking target)
+ *   - Inquiries -> "Send Inquiry" (link #contact)
+ *   - Trailer Leads -> "View Trailers" (link #trailers)
  */
 
 interface CTATexts {
   primary: string;
-  secondary: string;
+  primaryHref: string;
+  secondary: string | null;
+  secondaryHref: string | null;
   banner: string;
   bannerHeadline: string;
   bannerSubtext: string;
-  contextMicrocopy?: string; // Added for seasonal clarification
+  contextMicrocopy?: string;
 }
 
 /**
- * Compute allowed business models from wizard data
+ * Map goal to CTA text and link
  */
-function getAllowedModels(wizardData: WizardData): Set<string> {
-  const allowed = new Set<string>();
-  
-  if (wizardData.primaryBusinessModel) {
-    allowed.add(wizardData.primaryBusinessModel);
+function getGoalCTA(goal: Goal): { text: string; href: string } {
+  switch (goal) {
+    case 'bookings':
+      return { text: 'Book Now', href: '#booking' };
+    case 'inquiries':
+      return { text: 'Send Inquiry', href: '#contact' };
+    case 'trailer-leads':
+      return { text: 'View Trailers', href: '#trailers' };
   }
-  
-  wizardData.secondaryBusinessModels.forEach(model => {
-    allowed.add(model);
-  });
-  
-  return allowed;
 }
 
 /**
- * Get CTA texts based on allowed models and primary goal
+ * Get CTA texts based on primary/secondary goals
  */
 export function getCTATexts(wizardData: WizardData): CTATexts {
   const allowedModels = getAllowedModels(wizardData);
-  const primaryModel = wizardData.primaryBusinessModel;
   const primaryGoal = wizardData.primaryGoal;
+  const secondaryGoal = wizardData.secondaryGoal;
   
-  // Determine secondary CTA based on trailer sales
-  const hasTrailerSales = allowedModels.has('trailer-sales');
-  const secondaryCTA = hasTrailerSales ? 'View Trailers' : 'Request Info';
+  // Primary CTA from Primary Goal (required)
+  const primaryCTA = primaryGoal ? getGoalCTA(primaryGoal as Goal) : { text: 'Book Now', href: '#booking' };
+  
+  // Secondary CTA from Secondary Goal (optional)
+  const secondaryCTA = secondaryGoal ? getGoalCTA(secondaryGoal as Goal) : null;
+  
+  // Banner headline/subtext based on models (keep existing logic)
+  let bannerHeadline = 'Ready to Get Started?';
+  let bannerSubtext = 'Contact us today to learn more about what we have to offer.';
+  let contextMicrocopy: string | undefined;
   
   // SEASONAL-ONLY LOGIC
   if (allowedModels.size === 1 && allowedModels.has('seasonal')) {
-    return {
-      primary: 'Book Now',
-      secondary: secondaryCTA,
-      banner: 'Book Now',
-      bannerHeadline: 'Ready to Make This Your Seasonal Home?',
-      bannerSubtext: 'Book your seasonal site for the upcoming season. Limited availability.',
-      contextMicrocopy: 'Seasonal sites • May–Oct • Limited availability',
-    };
+    bannerHeadline = 'Ready to Make This Your Seasonal Home?';
+    bannerSubtext = 'Book your seasonal site for the upcoming season. Limited availability.';
+    contextMicrocopy = 'Seasonal sites • May–Oct • Limited availability';
+  }
+  // SEASONAL + OVERNIGHT
+  else if (allowedModels.has('seasonal') && allowedModels.has('overnight')) {
+    bannerHeadline = 'Make It Your Seasonal Home — or Plan a Weekend Escape';
+    bannerSubtext = 'Book a seasonal site for the full season or reserve an overnight stay for your next getaway.';
+  }
+  // OVERNIGHT (WITHOUT SEASONAL)
+  else if (allowedModels.has('overnight') && !allowedModels.has('seasonal')) {
+    bannerHeadline = 'Ready for Your Next Adventure?';
+    bannerSubtext = 'Book your campsite today and start planning your perfect getaway.';
+  }
+  // COTTAGE RENTALS (WITHOUT OVERNIGHT)
+  else if (allowedModels.has('cottage-rentals') && !allowedModels.has('overnight')) {
+    bannerHeadline = 'Your Perfect Cottage Awaits';
+    bannerSubtext = 'Book your cottage rental today for an unforgettable escape.';
+  }
+  // TRAILER SALES
+  else if (allowedModels.has('trailer-sales') && primaryGoal === 'trailer-leads') {
+    bannerHeadline = 'Find Your Dream RV';
+    bannerSubtext = 'Explore our selection of quality trailers and RVs for sale.';
   }
   
-  // SEASONAL + OVERNIGHT (DUAL-MODEL LOGIC)
-  if (allowedModels.has('seasonal') && allowedModels.has('overnight')) {
-    return {
-      primary: 'Book Now',
-      secondary: secondaryCTA,
-      banner: 'Book Now',
-      bannerHeadline: 'Make It Your Seasonal Home — or Plan a Weekend Escape',
-      bannerSubtext: 'Book a seasonal site for the full season or reserve an overnight stay for your next getaway.',
-    };
-  }
-  
-  // OVERNIGHT (WITH OR WITHOUT OTHER MODELS - BUT NOT SEASONAL)
-  if (allowedModels.has('overnight')) {
-    return {
-      primary: 'Book Now',
-      secondary: secondaryCTA,
-      banner: 'Book Now',
-      bannerHeadline: 'Ready for Your Next Adventure?',
-      bannerSubtext: 'Book your campsite today and start planning your perfect getaway.',
-    };
-  }
-  
-  // COTTAGE RENTALS (WITH OR WITHOUT OTHER MODELS)
-  if (allowedModels.has('cottage-rentals') && !allowedModels.has('overnight')) {
-    return {
-      primary: 'Book Now',
-      secondary: secondaryCTA,
-      banner: 'Book Now',
-      bannerHeadline: 'Your Perfect Cottage Awaits',
-      bannerSubtext: 'Book your cottage rental today for an unforgettable escape.',
-    };
-  }
-  
-  // TRAILER SALES PRIMARY
-  if (primaryModel === 'trailer-sales' || primaryGoal === 'trailer-leads') {
-    return {
-      primary: 'Book Now',
-      secondary: 'View Trailers',
-      banner: 'Book Now',
-      bannerHeadline: 'Find Your Dream RV',
-      bannerSubtext: 'Explore our selection of quality trailers and RVs for sale.',
-    };
-  }
-  
-  // DEFAULT FALLBACK
   return {
-    primary: 'Book Now',
-    secondary: 'Request Info',
-    banner: 'Book Now',
-    bannerHeadline: 'Ready to Get Started?',
-    bannerSubtext: 'Contact us today to learn more about what we have to offer.',
+    primary: primaryCTA.text,
+    primaryHref: primaryCTA.href,
+    secondary: secondaryCTA ? secondaryCTA.text : null,
+    secondaryHref: secondaryCTA ? secondaryCTA.href : null,
+    banner: primaryCTA.text,
+    bannerHeadline,
+    bannerSubtext,
+    contextMicrocopy,
   };
 }
 
@@ -125,6 +105,6 @@ export function getPrimaryCTA(wizardData: WizardData): string {
 /**
  * Get secondary CTA text only
  */
-export function getSecondaryCTA(wizardData: WizardData): string {
+export function getSecondaryCTA(wizardData: WizardData): string | null {
   return getCTATexts(wizardData).secondary;
 }

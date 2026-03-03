@@ -1,5 +1,5 @@
 import { useColorPalette } from '../../hooks/useColorPalette';
-import { useWizard } from '../../context/WizardContext';
+import { useWizard, getAllowedModels } from '../../context/WizardContext';
 import { getCTATexts } from '../../utils/ctaTextMapper';
 import { sanitizeCopy } from '../../utils/copySanitizer';
 
@@ -21,12 +21,8 @@ export function SeasonalBenefitsStats(props: SeasonalBenefitsStatsProps) {
   const { wizardData } = useWizard();
   const ctaTexts = getCTATexts(wizardData);
   
-  // Compute allowed models
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    allowedModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  // Compute allowed models using helper
+  const allowedModels = getAllowedModels(wizardData);
   
   // Get default closing text based on model
   const getDefaultClosingText = () => {

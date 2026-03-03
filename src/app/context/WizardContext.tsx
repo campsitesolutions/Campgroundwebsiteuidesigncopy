@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export type BusinessModel = 'seasonal' | 'overnight' | 'trailer-sales' | 'cottage-rentals';
+export type AddOnModel = 'overnight' | 'trailer-sales' | 'cottage-rentals'; // Add-ons only (seasonal is always included)
 export type Goal = 'bookings' | 'inquiries' | 'trailer-leads';
 export type Audience = 'families' | 'couples' | 'snowbirds' | 'retirees' | 'outdoor-adventurers';
 
@@ -39,7 +40,7 @@ export interface WizardData {
   
   // Step 2: Business Model
   primaryBusinessModel: BusinessModel | '';
-  secondaryBusinessModels: BusinessModel[];
+  secondaryBusinessModels: AddOnModel[];
   
   // Step 3: Goals + Audience
   primaryGoal: Goal | '';
@@ -68,7 +69,7 @@ const defaultWizardData: WizardData = {
   email: '',
   phone: '',
   websiteUrl: '',
-  primaryBusinessModel: '',
+  primaryBusinessModel: 'seasonal', // Default to seasonal for all parks
   secondaryBusinessModels: [],
   primaryGoal: '',
   secondaryGoal: '',
@@ -95,6 +96,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
         const migrated: WizardData = {
           ...defaultWizardData,
           ...parsed,
+          // Ensure primaryBusinessModel defaults to seasonal if empty
+          primaryBusinessModel: parsed.primaryBusinessModel || 'seasonal',
           // Ensure painPoints is an array
           painPoints: Array.isArray(parsed.painPoints) ? parsed.painPoints : [],
           // Ensure highlights is an array
@@ -144,4 +147,16 @@ export function useWizard() {
     throw new Error('useWizard must be used within WizardProvider');
   }
   return context;
+}
+
+// Helper function to compute allowed business models (seasonal + selected add-ons)
+export function getAllowedModels(wizardData: WizardData): Set<BusinessModel> {
+  // Seasonal is always included
+  const models = ['seasonal', ...wizardData.secondaryBusinessModels] as BusinessModel[];
+  return new Set(models);
+}
+
+// Helper function to check if a business model is allowed
+export function isModelAllowed(model: BusinessModel, wizardData: WizardData): boolean {
+  return getAllowedModels(wizardData).has(model);
 }

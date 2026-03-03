@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useWizard } from '../../context/WizardContext';
+import { useWizard, getAllowedModels } from '../../context/WizardContext';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { getContrastTextColor } from '../../utils/colorUtils';
 
@@ -16,12 +16,8 @@ export function OvernightExperienceHighlight(props: OvernightExperienceHighlight
   const { wizardData } = useWizard();
   const palette = useColorPalette();
   
-  // Check if both seasonal and overnight are selected
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    allowedModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  // Compute allowed models using helper
+  const allowedModels = getAllowedModels(wizardData);
   
   // Only render if BOTH seasonal AND overnight are selected
   const shouldRender = allowedModels.has('seasonal') && allowedModels.has('overnight');

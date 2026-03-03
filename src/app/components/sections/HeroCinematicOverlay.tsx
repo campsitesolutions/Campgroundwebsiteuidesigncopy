@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useWizard } from '../../context/WizardContext';
+import { useWizard, getAllowedModels } from '../../context/WizardContext';
 import { getCTATexts } from '../../utils/ctaTextMapper';
 import { sanitizeCopy, getDefaultTagline, getDefaultHeadline } from '../../utils/copySanitizer';
 import { getContrastTextColor } from '../../utils/colorUtils';
@@ -30,12 +30,8 @@ export function HeroCinematicOverlay(props: HeroCinematicOverlayProps) {
   const defaultTagline = getDefaultTagline(wizardData);
   const defaultHeadline = getDefaultHeadline(wizardData);
   
-  // Compute allowed models for seasonal-specific badge
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    allowedModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  // Compute allowed models using helper
+  const allowedModels = getAllowedModels(wizardData);
   
   // Check if seasonal-only
   const isSeasonalOnly = allowedModels.size === 1 && allowedModels.has('seasonal');
@@ -63,13 +59,14 @@ export function HeroCinematicOverlay(props: HeroCinematicOverlayProps) {
   
   const primaryCTA = props.primaryCTA || {
     text: ctaTexts.primary,
-    href: "#contact"
+    href: ctaTexts.primaryHref
   };
   
-  const secondaryCTA = props.secondaryCTA || {
+  // Secondary CTA only if goal is set
+  const secondaryCTA = props.secondaryCTA || (ctaTexts.secondary ? {
     text: ctaTexts.secondary,
-    href: "#amenities"
-  };
+    href: ctaTexts.secondaryHref || '#'
+  } : null);
   
   const backgroundImage = props.backgroundImage || "https://images.unsplash.com/photo-1504201958709-5df18407bb4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920";
 
@@ -139,12 +136,14 @@ export function HeroCinematicOverlay(props: HeroCinematicOverlayProps) {
             {primaryCTA.text}
           </a>
           
-          <a
-            href={secondaryCTA.href}
-            className="px-10 py-5 rounded-lg font-bold text-lg transition-all border-2 border-white/80 hover:bg-white/10 duration-200 inline-block text-white"
-          >
-            {secondaryCTA.text}
-          </a>
+          {secondaryCTA && (
+            <a
+              href={secondaryCTA.href}
+              className="px-10 py-5 rounded-lg font-bold text-lg transition-all border-2 border-white/80 hover:bg-white/10 duration-200 inline-block text-white"
+            >
+              {secondaryCTA.text}
+            </a>
+          )}
         </div>
       </div>
     </section>

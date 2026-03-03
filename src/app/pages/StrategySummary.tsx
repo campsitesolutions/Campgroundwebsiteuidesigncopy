@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useWizard } from '../context/WizardContext';
+import { useWizard, getAllowedModels } from '../context/WizardContext';
 import { useSections } from '../context/SectionContext';
 import { sections as allSections } from '../data/sections';
 import { getRecommendedStack } from '../data/recommendationMapping';
@@ -37,120 +37,77 @@ export function StrategySummary() {
   );
 
   // 🔥 HARD-INSERT LOGIC: Overnight Experience Highlight for Seasonal + Overnight
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    const modelKey = wizardData.primaryBusinessModel === 'trailer-sales' ? 'trailers' : 
-                     wizardData.primaryBusinessModel === 'cottage-rentals' ? 'cottages' : 
-                     wizardData.primaryBusinessModel;
-    allowedModels.add(modelKey);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => {
-    const modelKey = model === 'trailer-sales' ? 'trailers' : 
-                     model === 'cottage-rentals' ? 'cottages' : 
-                     model;
-    allowedModels.add(modelKey);
-  });
-
-  // Also create raw model set for highlight insertion checks (no conversion)
-  const rawModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    rawModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => rawModels.add(model));
+  const allowedModels = getAllowedModels(wizardData);
 
   console.log('🔍 StrategySummary - Allowed Models (converted):', Array.from(allowedModels));
-  console.log('🔍 StrategySummary - Raw Models:', Array.from(rawModels));
   console.log('🔍 PRIMARY MODEL:', wizardData.primaryBusinessModel);
   console.log('🔍 SECONDARY MODELS:', wizardData.secondaryBusinessModels);
   console.log('📋 StrategySummary - Recommended Sections BEFORE insertion:', recommendedSectionIds);
 
-  // If both seasonal and overnight are selected, ensure OvernightExperienceHighlight is included
-  if (rawModels.has('seasonal') && rawModels.has('overnight')) {
-    const overnightHighlightId = 'overnight-experience-highlight';
-    
-    // Remove it if it already exists (to prevent duplicates)
-    recommendedSectionIds = recommendedSectionIds.filter(id => id !== overnightHighlightId);
-    
-    // Find insertion point: after last seasonal-benefits-* section, before rates-teaser-strip
-    const seasonalBenefitsIndices = recommendedSectionIds
-      .map((id, idx) => id.startsWith('seasonal-benefits') ? idx : -1)
-      .filter(idx => idx !== -1);
-    
-    const ratesIndex = recommendedSectionIds.indexOf('rates-teaser-strip');
-    
-    let insertionIndex = -1;
-    if (seasonalBenefitsIndices.length > 0) {
-      // Insert after the last seasonal benefits section
-      insertionIndex = Math.max(...seasonalBenefitsIndices) + 1;
-      console.log('✅ Inserting OVERNIGHT HIGHLIGHT AFTER seasonal benefits at index:', insertionIndex);
-    } else if (ratesIndex !== -1) {
-      // Insert before rates if no seasonal sections found
-      insertionIndex = ratesIndex;
-      console.log('✅ Inserting OVERNIGHT HIGHLIGHT BEFORE rates at index:', insertionIndex);
-    } else {
-      // Insert after amenities grid as fallback
-      const amenitiesIndex = recommendedSectionIds.indexOf('amenities-grid');
-      if (amenitiesIndex !== -1) {
-        insertionIndex = amenitiesIndex + 1;
-        console.log('✅ Inserting OVERNIGHT HIGHLIGHT AFTER amenities at index:', insertionIndex);
-      }
-    }
-    
-    if (insertionIndex !== -1) {
-      recommendedSectionIds.splice(insertionIndex, 0, overnightHighlightId);
-      console.log('✅ INSERTED overnight-experience-highlight at index:', insertionIndex);
-    } else {
-      console.warn('⚠️ Could not find suitable insertion point for overnight-experience-highlight');
-    }
+  // CONSOLIDATED HIGHLIGHT INSERTION LOGIC
+  // Insert all applicable highlight sections in consistent order:
+  // 1) OvernightExperienceHighlight
+  // 2) CottageRentalsHighlight  
+  // 3) TrailerSalesHighlight
+  const highlightsToInsert: string[] = [];
+  
+  // Check conditions and build ordered list of highlights
+  if (allowedModels.has('seasonal') && allowedModels.has('overnight')) {
+    console.log('🚀 CONDITION MET: Both seasonal and overnight detected!');
+    highlightsToInsert.push('overnight-experience-highlight');
   }
-
-  // If both seasonal and trailer-sales are selected, ensure TrailerSalesHighlight is included
-  if (rawModels.has('seasonal') && rawModels.has('trailer-sales')) {
+  
+  if (allowedModels.has('seasonal') && allowedModels.has('cottage-rentals')) {
+    console.log('🚀 CONDITION MET: Both seasonal and cottage-rentals detected!');
+    highlightsToInsert.push('cottage-rentals-highlight');
+  }
+  
+  if (allowedModels.has('seasonal') && allowedModels.has('trailer-sales')) {
     console.log('🚀 CONDITION MET: Both seasonal and trailer-sales detected!');
-    const trailerSalesHighlightId = 'trailer-sales-highlight';
+    highlightsToInsert.push('trailer-sales-highlight');
+  }
+  
+  // If we have any highlights to insert
+  if (highlightsToInsert.length > 0) {
+    console.log('📋 Highlights to insert in order:', highlightsToInsert);
     
-    // Remove it if it already exists (to prevent duplicates)
-    recommendedSectionIds = recommendedSectionIds.filter(id => id !== trailerSalesHighlightId);
-    
-    console.log('📋 Looking for insertion point in sections:', recommendedSectionIds);
+    // Remove all highlights first (prevent duplicates)
+    recommendedSectionIds = recommendedSectionIds.filter(id => 
+      !highlightsToInsert.includes(id)
+    );
     
     // Find insertion point: after last seasonal-benefits-* section, before rates-teaser-strip
     const seasonalBenefitsIndices = recommendedSectionIds
       .map((id, idx) => id.startsWith('seasonal-benefits') ? idx : -1)
       .filter(idx => idx !== -1);
     
-    console.log('🔍 Found seasonal-benefits sections at indices:', seasonalBenefitsIndices);
-    
     const ratesIndex = recommendedSectionIds.indexOf('rates-teaser-strip');
-    console.log('🔍 Found rates-teaser-strip at index:', ratesIndex);
     
     let insertionIndex = -1;
     if (seasonalBenefitsIndices.length > 0) {
       // Insert after the last seasonal benefits section
       insertionIndex = Math.max(...seasonalBenefitsIndices) + 1;
-      console.log('✅ Inserting TRAILER SALES HIGHLIGHT AFTER seasonal benefits at index:', insertionIndex);
+      console.log('✅ Inserting highlights AFTER seasonal benefits at index:', insertionIndex);
     } else if (ratesIndex !== -1) {
       // Insert before rates if no seasonal sections found
       insertionIndex = ratesIndex;
-      console.log('✅ Inserting TRAILER SALES HIGHLIGHT BEFORE rates at index:', insertionIndex);
+      console.log('✅ Inserting highlights BEFORE rates at index:', insertionIndex);
     } else {
       // Insert after amenities grid as fallback
       const amenitiesIndex = recommendedSectionIds.indexOf('amenities-grid');
-      console.log('🔍 Found amenities-grid at index:', amenitiesIndex);
       if (amenitiesIndex !== -1) {
         insertionIndex = amenitiesIndex + 1;
-        console.log('✅ Inserting TRAILER SALES HIGHLIGHT AFTER amenities at index:', insertionIndex);
+        console.log('✅ Inserting highlights AFTER amenities at index:', insertionIndex);
       }
     }
     
     if (insertionIndex !== -1) {
-      recommendedSectionIds.splice(insertionIndex, 0, trailerSalesHighlightId);
-      console.log('✅ INSERTED trailer-sales-highlight at index:', insertionIndex);
+      // Insert all highlights in order at the same insertion point
+      recommendedSectionIds.splice(insertionIndex, 0, ...highlightsToInsert);
+      console.log('✅ INSERTED highlights at index:', insertionIndex, '→', highlightsToInsert);
     } else {
-      console.warn('⚠️ Could not find suitable insertion point for trailer-sales-highlight');
+      console.warn('⚠️ Could not find suitable insertion point for highlights');
     }
-  } else {
-    console.log('❌ CONDITION NOT MET for trailer sales highlight. rawModels:', Array.from(rawModels));
   }
 
   console.log('📋 StrategySummary - FINAL SECTIONS:', recommendedSectionIds);

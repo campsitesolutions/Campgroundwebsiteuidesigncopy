@@ -1,6 +1,6 @@
 import { Calendar, Home, Tent, ArrowRight, CheckCircle } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useWizard } from '../../context/WizardContext';
+import { useWizard, getAllowedModels } from '../../context/WizardContext';
 
 interface FeaturedStayType {
   model: string;
@@ -33,12 +33,8 @@ interface StayTypeCardsSpotlightProps {
 export function StayTypeCardsSpotlight(props: StayTypeCardsSpotlightProps) {
   const { wizardData } = useWizard();
   
-  // Compute allowed models
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    allowedModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  // Compute allowed models using helper
+  const allowedModels = getAllowedModels(wizardData);
   
   const defaultFeatured: FeaturedStayType = {
     model: 'seasonal',

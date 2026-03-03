@@ -1,6 +1,6 @@
 import { ArrowRight, Phone } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useWizard } from '../../context/WizardContext';
+import { useWizard, getAllowedModels } from '../../context/WizardContext';
 import { getCTATexts } from '../../utils/ctaTextMapper';
 import { sanitizeCopy, getDefaultTagline, getDefaultHeadline } from '../../utils/copySanitizer';
 
@@ -27,12 +27,8 @@ export function HeroSplitLayout(props: HeroSplitLayoutProps) {
   const defaultTagline = getDefaultTagline(wizardData);
   const defaultHeadline = getDefaultHeadline(wizardData);
   
-  // Compute allowed models for badge
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    allowedModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  // Compute allowed models using helper
+  const allowedModels = getAllowedModels(wizardData);
   
   // Check if seasonal-only
   const isSeasonalOnly = allowedModels.size === 1 && allowedModels.has('seasonal');

@@ -66,10 +66,10 @@ export const router = createBrowserRouter([
         path: "layout-preview/:id",
         element: <LayoutPreview />,
       },
+      {
+        path: "wizard",
+        element: <IntakeWizard />,
+      },
     ],
-  },
-  {
-    path: "/wizard",
-    element: <IntakeWizard />,
   },
 ]);

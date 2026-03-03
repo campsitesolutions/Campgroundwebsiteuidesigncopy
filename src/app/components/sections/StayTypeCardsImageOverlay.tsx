@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useWizard } from '../../context/WizardContext';
+import { useWizard, getAllowedModels } from '../../context/WizardContext';
 
 interface StayType {
   model: string;
@@ -20,12 +20,8 @@ interface StayTypeCardsImageOverlayProps {
 export function StayTypeCardsImageOverlay(props: StayTypeCardsImageOverlayProps) {
   const { wizardData } = useWizard();
   
-  // Compute allowed models
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    allowedModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  // Compute allowed models using helper
+  const allowedModels = getAllowedModels(wizardData);
   
   // Default stay types
   const defaultStayTypes: StayType[] = [

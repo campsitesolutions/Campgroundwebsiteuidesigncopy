@@ -211,6 +211,16 @@ export const sections: SectionConfig[] = [
     component: 'TrailerSalesHighlight',
   },
   {
+    id: 'cottage-rentals-highlight',
+    name: 'Cottage Rentals Highlight',
+    description: 'Showcase cottage rental offerings when both seasonal sites and cottage rentals are offered. Only renders for dual-model configurations.',
+    tags: {
+      businessModel: ['seasonal', 'cottages'],
+      goal: ['bookings', 'inquiries'],
+    },
+    component: 'CottageRentalsHighlight',
+  },
+  {
     id: 'trailers-grid',
     name: 'Trailers for Sale - Original',
     description: 'Grid layout showcasing park model trailers for sale. Traditional design with image, title, and specs.',

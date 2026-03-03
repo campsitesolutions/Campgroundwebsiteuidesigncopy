@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { useSections } from '../../context/SectionContext';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { useWizard } from '../../context/WizardContext';
+import { useWizard, getAllowedModels } from '../../context/WizardContext';
 import { sanitizeCopy, getDefaultTagline } from '../../utils/copySanitizer';
 
 export function Footer() {
@@ -14,12 +14,8 @@ export function Footer() {
   const companyName = branding.companyName || 'Pine Valley Camp';
   const logoUrl = branding.logoUrl;
   
-  // Compute allowed models
-  const allowedModels = new Set<string>();
-  if (wizardData.primaryBusinessModel) {
-    allowedModels.add(wizardData.primaryBusinessModel);
-  }
-  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  // Compute allowed models using helper
+  const allowedModels = getAllowedModels(wizardData);
   
   // Generate model-aware tagline
   const getFooterTagline = () => {

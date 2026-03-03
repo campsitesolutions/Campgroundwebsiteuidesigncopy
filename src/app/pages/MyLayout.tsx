@@ -46,6 +46,7 @@ import { SeasonalBenefitsAlternating } from '../components/sections/SeasonalBene
 import { SeasonalBenefitsStats } from '../components/sections/SeasonalBenefitsStats';
 import { OvernightExperienceHighlight } from '../components/sections/OvernightExperienceHighlight';
 import { TrailerSalesHighlight } from '../components/sections/TrailerSalesHighlight';
+import { CottageRentalsHighlight } from '../components/sections/CottageRentalsHighlight';
 import { TrailersGrid } from '../components/sections/TrailersGrid';
 import { TrailersCleanGrid } from '../components/sections/TrailersCleanGrid';
 import { TrailersFeaturedGrid } from '../components/sections/TrailersFeaturedGrid';
@@ -72,6 +73,7 @@ const componentMap: { [key: string]: React.ComponentType<any> } = {
   SeasonalBenefitsStats,
   OvernightExperienceHighlight,
   TrailerSalesHighlight,
+  CottageRentalsHighlight,
   TrailersGrid,
   TrailersCleanGrid,
   TrailersFeaturedGrid,
@@ -104,6 +106,19 @@ export function MyLayout() {
       setCampgroundName(wizardData.campgroundName);
     }
   }, [wizardData.isCompleted, wizardData.primaryGoal, wizardData.campgroundName, setWizardGoal, setCampgroundName]);
+
+  // 🔒 PINNED COMPONENTS: Separate Navigation from reorderable sections
+  const navigationSections = selectedSections.filter(id => id.startsWith('nav-'));
+  const reorderableSections = selectedSections.filter(id => !id.startsWith('nav-'));
+  
+  // Get section data for both navigation and reorderable sections
+  const navigationSectionData = navigationSections
+    .map(id => sections.find(s => s.id === id))
+    .filter(Boolean) as typeof sections;
+    
+  const reorderableSectionData = reorderableSections
+    .map(id => sections.find(s => s.id === id))
+    .filter(Boolean) as typeof sections;
 
   const selectedSectionData = selectedSections
     .map(id => sections.find(s => s.id === id))
@@ -232,7 +247,8 @@ export function MyLayout() {
                   </div>
                   <DndProvider backend={HTML5Backend}>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                      {selectedSectionData.map((section, index) => {
+                      {/* Navigation sections first (pinned) */}
+                      {navigationSectionData.map((section, index) => {
                         const customization = getCustomization(section.id);
                         const hasCustomization = Object.keys(customization).length > 0;
                         
@@ -242,12 +258,34 @@ export function MyLayout() {
                             section={section}
                             index={index}
                             onDragEnd={moveCard}
+                            onMoveUp={() => {}} // Navigation can't move
+                            onMoveDown={() => {}} // Navigation can't move
+                            onRemove={() => removeSection(section.id)}
+                            onEdit={() => setEditingSectionId(section.id)}
+                            hasCustomization={hasCustomization}
+                            isLast={false}
+                            isPinned={true}
+                          />
+                        );
+                      })}
+                      
+                      {/* Reorderable sections */}
+                      {reorderableSectionData.map((section, index) => {
+                        const customization = getCustomization(section.id);
+                        const hasCustomization = Object.keys(customization).length > 0;
+                        
+                        return (
+                          <DraggableSectionCard
+                            key={section.id}
+                            section={section}
+                            index={navigationSectionData.length + index}
+                            onDragEnd={moveCard}
                             onMoveUp={() => moveSectionUp(section.id)}
                             onMoveDown={() => moveSectionDown(section.id)}
                             onRemove={() => removeSection(section.id)}
                             onEdit={() => setEditingSectionId(section.id)}
                             hasCustomization={hasCustomization}
-                            isLast={index === selectedSectionData.length - 1}
+                            isLast={index === reorderableSectionData.length - 1}
                           />
                         );
                       })}
@@ -272,12 +310,28 @@ export function MyLayout() {
               </div>
             </div>
 
-            {selectedSectionData.map(section => {
+            {/* 🔒 PINNED: Navigation always renders first */}
+            {navigationSectionData.map(section => {
               const Component = componentMap[section.component];
               if (!Component) return null;
               const customization = getCustomization(section.id);
               return (
-                <div key={`${section.id}-${selectedSections.indexOf(section.id)}`} className="relative group">
+                <div key={`${section.id}-nav`} className="relative group">
+                  <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {section.name} (Pinned - Always First)
+                  </div>
+                  <Component key={section.id} customization={customization} />
+                </div>
+              );
+            })}
+
+            {/* Reorderable sections (excludes Navigation) */}
+            {reorderableSectionData.map(section => {
+              const Component = componentMap[section.component];
+              if (!Component) return null;
+              const customization = getCustomization(section.id);
+              return (
+                <div key={`${section.id}-${reorderableSections.indexOf(section.id)}`} className="relative group">
                   <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                     {section.name}
                   </div>

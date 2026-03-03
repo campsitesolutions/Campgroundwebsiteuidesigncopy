@@ -39,7 +39,9 @@ export function CTABanner({ customization = {} }: CTABannerProps) {
           {description}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button 
+          {/* Primary CTA */}
+          <a
+            href={ctaTexts.primaryHref || '#contact'}
             className="px-8 py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-2 text-white"
             style={{ 
               backgroundColor: palette.colors.primaryDark
@@ -49,18 +51,23 @@ export function CTABanner({ customization = {} }: CTABannerProps) {
           >
             {buttonText}
             <ArrowRight className="w-5 h-5" />
-          </button>
-          <button 
-            className="px-8 py-4 rounded-lg font-bold text-lg transition-colors border-2 text-white"
-            style={{ 
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              borderColor: 'rgba(255,255,255,0.3)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
-          >
-            Contact Us
-          </button>
+          </a>
+          
+          {/* Secondary CTA (conditional) */}
+          {ctaTexts.secondary && (
+            <a
+              href={ctaTexts.secondaryHref || '#'}
+              className="px-8 py-4 rounded-lg font-bold text-lg transition-colors border-2 text-white"
+              style={{ 
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                borderColor: 'rgba(255,255,255,0.3)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+            >
+              {ctaTexts.secondary}
+            </a>
+          )}
         </div>
       </div>
     </section>

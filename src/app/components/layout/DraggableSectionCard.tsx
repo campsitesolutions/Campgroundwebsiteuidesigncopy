@@ -20,6 +20,7 @@ interface DraggableSectionCardProps {
   onEdit: () => void;
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   isLast: boolean;
+  isPinned?: boolean;
 }
 
 interface DragItem {
@@ -40,18 +41,20 @@ export function DraggableSectionCard({
   onEdit,
   onDragEnd,
   isLast,
+  isPinned,
 }: DraggableSectionCardProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
     accept: ITEM_TYPE,
+    canDrop: () => !isPinned, // Don't allow dropping on pinned sections
     collect(monitor) {
       return {
         handlerId: monitor.getHandlerId(),
       };
     },
     hover(item: DragItem, monitor) {
-      if (!ref.current) {
+      if (!ref.current || isPinned) {
         return;
       }
       const dragIndex = item.index;
@@ -81,6 +84,7 @@ export function DraggableSectionCard({
 
   const [{ isDragging }, drag] = useDrag({
     type: ITEM_TYPE,
+    canDrag: !isPinned, // Don't allow dragging pinned sections
     item: () => {
       return { id: section.id, index };
     },
@@ -89,7 +93,9 @@ export function DraggableSectionCard({
     }),
   });
 
-  drag(drop(ref));
+  if (!isPinned) {
+    drag(drop(ref));
+  }
 
   const opacity = isDragging ? 0.4 : 1;
 
@@ -99,14 +105,29 @@ export function DraggableSectionCard({
       data-handler-id={handlerId}
       style={{ opacity }}
       className={`bg-white rounded-lg border-2 transition-all ${
-        isDragging ? 'border-[#E8D5B5] shadow-lg' : 'border-gray-300 hover:border-[#E8D5B5]'
+        isPinned 
+          ? 'border-blue-400 bg-blue-50/30' 
+          : isDragging 
+            ? 'border-[#E8D5B5] shadow-lg' 
+            : 'border-gray-300 hover:border-[#E8D5B5]'
       }`}
     >
       <div className="p-3 border-b border-gray-200 flex items-center gap-2">
-        <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-[#2C3E50] transition-colors flex-shrink-0">
-          <GripVertical className="w-5 h-5" />
-        </div>
+        {isPinned ? (
+          <div className="text-blue-600 flex-shrink-0" title="Pinned - Always First">
+            📌
+          </div>
+        ) : (
+          <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-[#2C3E50] transition-colors flex-shrink-0">
+            <GripVertical className="w-5 h-5" />
+          </div>
+        )}
         <span className="text-sm font-semibold truncate flex-1">{section.name}</span>
+        {isPinned && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 flex-shrink-0">
+            Pinned
+          </span>
+        )}
         {hasCustomization && (
           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E8D5B5]/30 text-[#2C3E50] flex-shrink-0">
             Edited ✏️
@@ -117,17 +138,17 @@ export function DraggableSectionCard({
         <div className="flex items-center gap-1 flex-1">
           <button
             onClick={onMoveUp}
-            disabled={index === 0}
+            disabled={index === 0 || isPinned}
             className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            title="Move up"
+            title={isPinned ? "Can't move pinned section" : "Move up"}
           >
             <ChevronUp className="w-4 h-4" />
           </button>
           <button
             onClick={onMoveDown}
-            disabled={isLast}
+            disabled={isLast || isPinned}
             className="p-1.5 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            title="Move down"
+            title={isPinned ? "Can't move pinned section" : "Move down"}
           >
             <ChevronDown className="w-4 h-4" />
           </button>
