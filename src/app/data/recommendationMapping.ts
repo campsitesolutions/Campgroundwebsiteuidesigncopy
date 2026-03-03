@@ -439,9 +439,19 @@ function applyHighlightRules(result: RuleResult, highlight: Highlight, primaryBu
  * STEP 4.5: Apply multi-model rules
  */
 function applyMultiModelRules(result: RuleResult, allowedModels: Set<string>, primaryBusinessModel: BusinessModel) {
+  console.log('🔍 applyMultiModelRules called:', {
+    allowedModels: Array.from(allowedModels),
+    primaryBusinessModel,
+    hasSeasonalAndOvernight: allowedModels.has('seasonal') && allowedModels.has('overnight'),
+    isPrimarySeasonal: primaryBusinessModel === 'seasonal'
+  });
+  
   // Seasonal + Overnight: Add overnight experience highlight
   if (allowedModels.has('seasonal') && allowedModels.has('overnight') && primaryBusinessModel === 'seasonal') {
+    console.log('✅ Adding OVERNIGHT_HIGHLIGHT section');
     requireSection(result, 'OVERNIGHT_HIGHLIGHT', 'Highlights overnight camping option for seasonal-focused parks');
+  } else {
+    console.log('❌ NOT adding OVERNIGHT_HIGHLIGHT - conditions not met');
   }
   
   // Trailers + Cottages: Add trailer and cottage-specific sections
@@ -504,6 +514,12 @@ function cleanupAndFinalize(result: RuleResult): ShortSectionId[] {
 
   // Position OVERNIGHT_HIGHLIGHT after seasonal benefits and before RATES
   const overnightHighlightIndex = sections.indexOf('OVERNIGHT_HIGHLIGHT');
+  console.log('📍 Positioning OVERNIGHT_HIGHLIGHT:', { 
+    found: overnightHighlightIndex !== -1,
+    currentIndex: overnightHighlightIndex,
+    sections: sections
+  });
+  
   if (overnightHighlightIndex !== -1) {
     sections.splice(overnightHighlightIndex, 1); // Remove from current position
     
@@ -511,16 +527,19 @@ function cleanupAndFinalize(result: RuleResult): ShortSectionId[] {
     const seasonalSections = sections.filter(id => id.startsWith('SEASONAL_'));
     if (seasonalSections.length > 0) {
       const lastSeasonalIndex = sections.lastIndexOf(seasonalSections[seasonalSections.length - 1]);
+      console.log('✅ Placing OVERNIGHT_HIGHLIGHT after seasonal section at index', lastSeasonalIndex + 1);
       sections.splice(lastSeasonalIndex + 1, 0, 'OVERNIGHT_HIGHLIGHT');
     } else {
       // If no seasonal sections, place before RATES
       const ratesIndex = sections.indexOf('RATES');
       if (ratesIndex !== -1) {
+        console.log('✅ Placing OVERNIGHT_HIGHLIGHT before RATES at index', ratesIndex);
         sections.splice(ratesIndex, 0, 'OVERNIGHT_HIGHLIGHT');
       } else {
         // If no RATES, place after AMEN_GRID
         const amenIndex = sections.indexOf('AMEN_GRID');
         if (amenIndex !== -1) {
+          console.log('✅ Placing OVERNIGHT_HIGHLIGHT after AMEN_GRID at index', amenIndex + 1);
           sections.splice(amenIndex + 1, 0, 'OVERNIGHT_HIGHLIGHT');
         }
       }

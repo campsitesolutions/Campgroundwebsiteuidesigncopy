@@ -15,6 +15,7 @@ import { SeasonalBenefits } from '../components/sections/SeasonalBenefits';
 import { SeasonalBenefitsAlternating } from '../components/sections/SeasonalBenefitsAlternating';
 import { SeasonalBenefitsIconCards } from '../components/sections/SeasonalBenefitsIconCards';
 import { SeasonalBenefitsStats } from '../components/sections/SeasonalBenefitsStats';
+import { OvernightExperienceHighlight } from '../components/sections/OvernightExperienceHighlight';
 import { TrailersGrid } from '../components/sections/TrailersGrid';
 import { TrailersCleanGrid } from '../components/sections/TrailersCleanGrid';
 import { TrailersFeaturedGrid } from '../components/sections/TrailersFeaturedGrid';
@@ -53,6 +54,7 @@ const componentMap: Record<string, React.ComponentType<any>> = {
   SeasonalBenefitsAlternating,
   SeasonalBenefitsIconCards,
   SeasonalBenefitsStats,
+  OvernightExperienceHighlight,
   TrailersGrid,
   TrailersCleanGrid,
   TrailersFeaturedGrid,
