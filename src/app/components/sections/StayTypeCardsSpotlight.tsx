@@ -1,6 +1,8 @@
 import { Calendar, Home, Tent, ArrowRight, CheckCircle } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useWizard, getAllowedModels } from '../../context/WizardContext';
+import { useColorPalette } from '../../hooks/useColorPalette';
+import { Button } from '../ui/button';
 
 interface FeaturedStayType {
   model: string;
@@ -32,6 +34,7 @@ interface StayTypeCardsSpotlightProps {
 
 export function StayTypeCardsSpotlight(props: StayTypeCardsSpotlightProps) {
   const { wizardData } = useWizard();
+  const palette = useColorPalette();
   
   // Compute allowed models using helper
   const allowedModels = getAllowedModels(wizardData);
@@ -91,22 +94,24 @@ export function StayTypeCardsSpotlight(props: StayTypeCardsSpotlightProps) {
   const FeaturedIcon = featured.icon;
 
   return (
-    <section className="py-16 md:py-20 bg-gray-50">
+    <section className="py-[88px] bg-[var(--background-muted)]">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{headline}</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          {/* H2: 36px from theme */}
+          <h2 className="mb-4">{headline}</h2>
+          {/* Body: 18px from theme */}
+          <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
             {subheadline}
           </p>
         </div>
 
-        {/* Grid Layout */}
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+        {/* Grid Layout - Responsive */}
+        <div className={`grid gap-6 ${showFeatured && stayTypes.length > 0 ? 'lg:grid-cols-2' : 'grid-cols-1 max-w-2xl mx-auto'}`}>
           {/* Featured Large Card - Left */}
           {showFeatured && (
-            <div className="lg:row-span-2">
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
+            <div className={stayTypes.length > 0 ? 'lg:row-span-2' : ''}>
+              <div className="bg-white rounded-lg shadow-[0_8px_24px_0_rgb(0_0_0/0.1)] overflow-hidden h-full flex flex-col hover:shadow-[0_12px_32px_0_rgb(0_0_0/0.15)] transition-shadow duration-300">
                 {/* Image */}
                 <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
                   <ImageWithFallback
@@ -114,7 +119,10 @@ export function StayTypeCardsSpotlight(props: StayTypeCardsSpotlightProps) {
                     alt={featured.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-6 left-6 bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide">
+                  <div 
+                    className="absolute top-6 left-6 text-white px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide"
+                    style={{ backgroundColor: palette.colors.accent }}
+                  >
                     Featured
                   </div>
                 </div>
@@ -122,15 +130,18 @@ export function StayTypeCardsSpotlight(props: StayTypeCardsSpotlightProps) {
                 {/* Content */}
                 <div className="p-8 flex flex-col flex-grow">
                   {/* Icon */}
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
-                    <FeaturedIcon className="w-8 h-8 text-emerald-700" />
+                  <div 
+                    className="w-16 h-16 rounded-full flex items-center justify-center mb-6"
+                    style={{ backgroundColor: `${palette.colors.accent}20` }}
+                  >
+                    <FeaturedIcon className="w-8 h-8" style={{ color: palette.colors.primary }} />
                   </div>
 
-                  {/* Title */}
-                  <h3 className="text-3xl font-bold mb-4">{featured.title}</h3>
+                  {/* Title - H3: 24px from theme */}
+                  <h3 className="mb-4">{featured.title}</h3>
 
-                  {/* Description */}
-                  <p className="text-gray-700 text-lg mb-6 leading-relaxed">
+                  {/* Description - Body: 18px */}
+                  <p className="text-[var(--text-secondary)] mb-6 leading-relaxed">
                     {featured.description}
                   </p>
 
@@ -138,31 +149,32 @@ export function StayTypeCardsSpotlight(props: StayTypeCardsSpotlightProps) {
                   <ul className="space-y-3 mb-8 flex-grow">
                     {featured.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">{feature}</span>
+                        <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: palette.colors.primary }} />
+                        <span className="text-[var(--text-secondary)]">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
                   {/* CTA Button */}
-                  <a
+                  <Button
+                    variant="primary"
                     href={featured.href}
-                    className="inline-flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors w-full"
+                    className="w-full justify-center"
                   >
                     {featured.cta}
                     <ArrowRight className="w-5 h-5" />
-                  </a>
+                  </Button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Smaller Cards - Right (Stacked) */}
+          {/* Smaller Cards - Right (Stacked) or Centered if no featured */}
           {stayTypes.map((type) => {
             const Icon = type.icon;
             return (
               <div key={type.title}>
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow duration-300">
+                <div className="bg-white rounded-lg shadow-[0_8px_24px_0_rgb(0_0_0/0.1)] overflow-hidden h-full flex flex-col hover:shadow-[0_12px_32px_0_rgb(0_0_0/0.15)] transition-shadow duration-300">
                   {/* Image */}
                   <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
                     <ImageWithFallback
@@ -173,28 +185,32 @@ export function StayTypeCardsSpotlight(props: StayTypeCardsSpotlightProps) {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6 flex flex-col flex-grow">
+                  <div className="p-8 flex flex-col flex-grow">
                     {/* Icon */}
-                    <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-emerald-700" />
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
+                      style={{ backgroundColor: `${palette.colors.accent}20` }}
+                    >
+                      <Icon className="w-6 h-6" style={{ color: palette.colors.primary }} />
                     </div>
 
-                    {/* Title */}
-                    <h3 className="text-2xl font-bold mb-3">{type.title}</h3>
+                    {/* Title - H3: 24px from theme */}
+                    <h3 className="mb-3">{type.title}</h3>
 
-                    {/* Description */}
-                    <p className="text-gray-600 mb-6 flex-grow leading-relaxed">
+                    {/* Description - Body: 18px */}
+                    <p className="text-[var(--text-secondary)] mb-6 flex-grow leading-relaxed">
                       {type.description}
                     </p>
 
-                    {/* CTA Link */}
-                    <a
+                    {/* CTA Button */}
+                    <Button
+                      variant="ds-secondary"
                       href={type.href}
-                      className="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-800 font-semibold text-lg group"
+                      className="w-full justify-center"
                     >
                       {type.cta}
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </a>
+                      <ArrowRight className="w-5 h-5" />
+                    </Button>
                   </div>
                 </div>
               </div>

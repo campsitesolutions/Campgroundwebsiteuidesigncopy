@@ -2,6 +2,7 @@ import { Calendar, Home, Tent, ArrowRight } from 'lucide-react';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { useWizard, getAllowedModels } from '../../context/WizardContext';
 import { sanitizeCopy } from '../../utils/copySanitizer';
+import { Button } from '../ui/button';
 
 export function StayTypeCards() {
   const palette = useColorPalette();
@@ -68,23 +69,32 @@ export function StayTypeCards() {
     return 'Whether it\'s a quick getaway or a full season, we have the perfect option for you.';
   };
 
+  // Dynamic grid classes based on number of cards
+  const getGridClass = () => {
+    if (stayTypes.length === 1) return 'grid-cols-1 max-w-md mx-auto';
+    if (stayTypes.length === 2) return 'md:grid-cols-2 max-w-4xl mx-auto';
+    return 'md:grid-cols-3';
+  };
+
   return (
-    <section className="py-16 md:py-20 bg-gray-50">
+    <section className="py-[88px] bg-[var(--background-muted)]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{getSectionTitle()}</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          {/* H2: 36px from theme */}
+          <h2 className="mb-4">{getSectionTitle()}</h2>
+          {/* Body: 18px from theme */}
+          <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
             {getSectionSubtitle()}
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        <div className={`grid gap-6 ${getGridClass()}`}>
           {stayTypes.map((type) => {
             const Icon = type.icon;
             return (
               <div
                 key={type.title}
-                className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow border border-gray-100"
+                className="bg-white rounded-lg p-8 shadow-[0_8px_24px_0_rgb(0_0_0/0.1)] hover:shadow-[0_12px_32px_0_rgb(0_0_0/0.15)] transition-shadow border border-gray-100"
               >
                 <div 
                   className="w-16 h-16 rounded-full flex items-center justify-center mb-6"
@@ -92,15 +102,18 @@ export function StayTypeCards() {
                 >
                   <Icon className="w-8 h-8" style={{ color: palette.colors.primary }} />
                 </div>
-                <h3 className="text-2xl font-bold mb-3">{type.title}</h3>
-                <p className="text-gray-600 mb-6">{type.description}</p>
-                <button 
-                  className="font-semibold flex items-center gap-2 hover:gap-3 transition-all"
-                  style={{ color: palette.colors.primary }}
+                {/* H3: 24px from theme */}
+                <h3 className="mb-3">{type.title}</h3>
+                {/* Body: 18px from theme */}
+                <p className="text-[var(--text-secondary)] mb-6">{type.description}</p>
+                <Button 
+                  variant="ds-secondary"
+                  className="w-full justify-center"
+                  href="#rates"
                 >
                   {type.cta}
                   <ArrowRight className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
             );
           })}

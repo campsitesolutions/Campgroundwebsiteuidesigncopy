@@ -19,12 +19,16 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // Design System Variants
+        primary: "bg-[var(--text-primary)] text-white hover:opacity-90 shadow-[0_8px_24px_0_rgb(0_0_0/0.1)] rounded-[10px] px-6 py-[14px] text-base font-medium",
+        "ds-secondary": "border-2 border-[var(--text-primary)] text-[var(--text-primary)] bg-transparent hover:bg-[var(--text-primary)] hover:text-white rounded-[10px] px-6 py-[14px] text-base font-medium",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
         icon: "size-9 rounded-md",
+        "ds-default": "", // Design system controls sizing via variant
       },
     },
     defaultVariants: {
@@ -43,14 +47,29 @@ function Button({
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
+    href?: string;
   }) {
+  const { href, ...buttonProps } = props as any;
+  
+  // If href is provided, render as <a> tag
+  if (href) {
+    return (
+      <a
+        href={href}
+        data-slot="button"
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...buttonProps}
+      />
+    );
+  }
+  
   const Comp = asChild ? Slot : "button";
 
   return (
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
+      {...buttonProps}
     />
   );
 }

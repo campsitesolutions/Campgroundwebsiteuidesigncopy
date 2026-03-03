@@ -3,6 +3,7 @@ import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useWizard, getAllowedModels } from '../../context/WizardContext';
 import { getCTATexts } from '../../utils/ctaTextMapper';
 import { sanitizeCopy, getDefaultTagline, getDefaultHeadline } from '../../utils/copySanitizer';
+import { Button } from '../ui/button';
 
 interface StatItem {
   number: string;
@@ -67,38 +68,39 @@ export function HeroCenteredWithStats(props: HeroCenteredWithStatsProps) {
         />
       </div>
 
-      {/* Subtle Overlay */}
+      {/* Subtle Overlay - Unified treatment */}
       <div className="absolute inset-0 z-10 bg-gray-900/40" />
 
       {/* Content Container */}
-      <div className="relative z-20 w-full max-w-5xl mx-auto px-6 py-24 text-center">
+      <div className="relative z-20 w-full max-w-5xl mx-auto px-6 py-[88px] text-center">
         {/* Main Content */}
-        <div className="mb-16">
-          {/* Headline */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">
+        <div className="mb-12">
+          {/* Headline - Uses theme H1: 56px, line-height 1.1 */}
+          <h1 className="text-white mb-6 tracking-tight">
             {headline}
           </h1>
 
-          {/* Supporting Text */}
-          <p className="text-lg md:text-xl text-white/90 mb-10 max-w-3xl mx-auto leading-relaxed">
+          {/* Supporting Text - 18px from theme */}
+          <p className="mb-8 max-w-3xl mx-auto text-white/90">
             {supportingText}
           </p>
           
           {/* Context Microcopy for Seasonal-Only */}
           {isSeasonalOnly && ctaTexts.contextMicrocopy && (
-            <p className="text-sm md:text-base mb-8 text-white/80 font-medium">
+            <p className="text-sm mb-6 text-white/80 font-medium">
               {ctaTexts.contextMicrocopy}
             </p>
           )}
 
-          {/* Primary CTA */}
-          <a
+          {/* Primary CTA - Unified Design System */}
+          <Button
+            variant="primary"
             href={primaryCTA.href}
-            className="inline-flex items-center gap-2 px-10 py-5 bg-white text-gray-900 font-bold text-lg rounded-lg shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-200"
+            className="bg-white text-[var(--text-primary)] hover:bg-white/90"
           >
             {primaryCTA.text}
             <ArrowRight className="w-6 h-6" />
-          </a>
+          </Button>
         </div>
 
         {/* Stats Row */}
@@ -109,7 +111,7 @@ export function HeroCenteredWithStats(props: HeroCenteredWithStatsProps) {
                 <div className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
                   {stat.number}
                 </div>
-                <div className="text-sm md:text-base font-medium text-white/80 uppercase tracking-wide">
+                <div className="text-sm font-medium text-white/80 uppercase tracking-wide">
                   {stat.label}
                 </div>
               </div>

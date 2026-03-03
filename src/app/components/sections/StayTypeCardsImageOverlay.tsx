@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useWizard, getAllowedModels } from '../../context/WizardContext';
+import { Button } from '../ui/button';
 
 interface StayType {
   model: string;
@@ -81,24 +82,33 @@ export function StayTypeCardsImageOverlay(props: StayTypeCardsImageOverlayProps)
   const headline = props.headline || getTitle();
   const subheadline = props.subheadline || getSubtitle();
 
+  // Dynamic grid classes based on number of cards
+  const getGridClass = () => {
+    if (stayTypes.length === 1) return 'grid-cols-1 max-w-md mx-auto';
+    if (stayTypes.length === 2) return 'md:grid-cols-2 max-w-4xl mx-auto';
+    return 'md:grid-cols-3';
+  };
+
   return (
-    <section className="py-16 md:py-20 bg-gray-50">
+    <section className="py-[88px] bg-[var(--background-muted)]">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{headline}</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          {/* H2: 36px from theme */}
+          <h2 className="mb-4">{headline}</h2>
+          {/* Body: 18px from theme */}
+          <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
             {subheadline}
           </p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        {/* Cards Grid - Responsive to card count */}
+        <div className={`grid gap-6 ${getGridClass()}`}>
           {stayTypes.map((type) => (
             <a
               key={type.title}
               href={type.href}
-              className="group relative block aspect-[3/4] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+              className="group relative block aspect-[3/4] rounded-lg overflow-hidden shadow-[0_8px_24px_0_rgb(0_0_0/0.1)] hover:shadow-[0_12px_32px_0_rgb(0_0_0/0.15)] transition-all duration-300 hover:-translate-y-1"
             >
               {/* Background Image */}
               <ImageWithFallback
@@ -107,18 +117,20 @@ export function StayTypeCardsImageOverlay(props: StayTypeCardsImageOverlayProps)
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
 
-              {/* Dark Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+              {/* Unified Overlay - 50% opacity */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
 
               {/* Content - Centered */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-                <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-8">
+                {/* H3: 24px from theme */}
+                <h3 className="text-white mb-4">
                   {type.title}
                 </h3>
-                <p className="text-white/90 text-lg mb-6 max-w-xs leading-relaxed">
+                {/* Body: 18px from theme */}
+                <p className="text-white/90 mb-6 max-w-xs leading-relaxed">
                   {type.description}
                 </p>
-                <span className="inline-flex items-center gap-2 text-white font-semibold text-lg group-hover:gap-3 transition-all">
+                <span className="inline-flex items-center gap-2 text-white font-semibold group-hover:gap-3 transition-all">
                   {type.cta}
                   <ArrowRight className="w-5 h-5" />
                 </span>

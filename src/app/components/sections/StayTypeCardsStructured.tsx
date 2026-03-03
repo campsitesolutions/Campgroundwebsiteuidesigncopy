@@ -1,7 +1,8 @@
-import { Calendar, Home, Tent, ArrowRight, MapPin, Users, Clock } from 'lucide-react';
+import { Calendar, Home, Tent, ArrowRight } from 'lucide-react';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useWizard, getAllowedModels } from '../../context/WizardContext';
+import { Button } from '../ui/button';
 
 interface StayType {
   model: string;
@@ -81,25 +82,34 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
   const headline = props.headline || getTitle();
   const subheadline = props.subheadline || 'Whether it\'s a quick getaway or a full season, we have the perfect option for you.';
 
+  // Dynamic grid classes based on number of cards
+  const getGridClass = () => {
+    if (stayTypes.length === 1) return 'grid-cols-1 max-w-md mx-auto';
+    if (stayTypes.length === 2) return 'md:grid-cols-2 max-w-4xl mx-auto';
+    return 'md:grid-cols-3';
+  };
+
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-gray-50">
+    <section className="py-[88px] bg-gradient-to-b from-white to-[var(--background-muted)]">
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{headline}</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+        <div className="text-center mb-12">
+          {/* H2: 36px from theme */}
+          <h2 className="mb-4">{headline}</h2>
+          {/* Body: 18px from theme */}
+          <p className="text-[var(--text-secondary)] max-w-2xl mx-auto">
             {subheadline}
           </p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        {/* Cards Grid - Responsive to card count */}
+        <div className={`grid gap-6 ${getGridClass()}`}>
           {stayTypes.map((type, idx) => {
             const Icon = type.icon;
             return (
               <div
                 key={type.title}
-                className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                className="group bg-white rounded-lg overflow-hidden shadow-[0_8px_24px_0_rgb(0_0_0/0.1)] hover:shadow-[0_12px_32px_0_rgb(0_0_0/0.15)] transition-all duration-300 transform hover:-translate-y-2"
               >
                 {/* Image with Overlay */}
                 <div className="relative h-56 overflow-hidden">
@@ -108,11 +118,11 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
                     alt={type.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
                   
                   {/* Icon Badge */}
                   <div 
-                    className="absolute top-4 right-4 w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
+                    className="absolute top-4 right-4 w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_24px_0_rgb(0_0_0/0.1)]"
                     style={{ backgroundColor: palette.colors.primary }}
                   >
                     <Icon className="w-7 h-7 text-white" />
@@ -120,21 +130,22 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
 
                   {/* Title Overlay */}
                   <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-2xl font-bold text-white">{type.title}</h3>
+                    {/* H3: 24px from theme */}
+                    <h3 className="text-white">{type.title}</h3>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
-                  {/* Description */}
-                  <p className="text-gray-700 leading-relaxed mb-4">
+                <div className="p-8">
+                  {/* Description - Body: 18px */}
+                  <p className="text-[var(--text-secondary)] leading-relaxed mb-6">
                     {type.description}
                   </p>
 
                   {/* Features List */}
                   <div className="space-y-2 mb-6">
                     {type.features.map((feature, featureIdx) => (
-                      <div key={featureIdx} className="flex items-center gap-2 text-sm text-gray-600">
+                      <div key={featureIdx} className="flex items-center gap-2 text-sm text-[var(--text-tertiary)]">
                         <div 
                           className="w-1.5 h-1.5 rounded-full"
                           style={{ backgroundColor: palette.colors.accent }}
@@ -145,28 +156,14 @@ export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
                   </div>
 
                   {/* CTA Button */}
-                  <a
+                  <Button
+                    variant="ds-secondary"
                     href={type.href}
-                    className="block w-full text-center py-3 rounded-lg font-semibold transition-all duration-300 group/btn border-2"
-                    style={{ 
-                      borderColor: palette.colors.primary,
-                      color: palette.colors.primary,
-                      backgroundColor: 'transparent'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = palette.colors.primary;
-                      e.currentTarget.style.color = '#FFFFFF';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
-                      e.currentTarget.style.color = palette.colors.primary;
-                    }}
+                    className="w-full justify-center"
                   >
-                    <span className="inline-flex items-center gap-2">
-                      {type.cta}
-                      <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                    </span>
-                  </a>
+                    {type.cta}
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
                 </div>
               </div>
             );

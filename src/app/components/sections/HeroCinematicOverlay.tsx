@@ -5,6 +5,7 @@ import { getCTATexts } from '../../utils/ctaTextMapper';
 import { sanitizeCopy, getDefaultTagline, getDefaultHeadline } from '../../utils/copySanitizer';
 import { getContrastTextColor } from '../../utils/colorUtils';
 import { useColorPalette } from '../../hooks/useColorPalette';
+import { Button } from '../ui/button';
 
 interface HeroCinematicOverlayProps {
   seasonalTagline?: string;
@@ -80,7 +81,7 @@ export function HeroCinematicOverlay(props: HeroCinematicOverlayProps) {
           className="w-full h-full object-cover"
         />
         <div 
-          className="absolute inset-0 opacity-60"
+          className="absolute inset-0 opacity-50"
           style={{ 
             background: `linear-gradient(135deg, ${palette.colors.primaryDark} 0%, ${palette.colors.primary} 50%, transparent 100%)`
           }}
@@ -101,48 +102,41 @@ export function HeroCinematicOverlay(props: HeroCinematicOverlayProps) {
           </div>
         )}
 
-        {/* Main Headline */}
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white">
+        {/* Main Headline - Uses theme H1: 56px, line-height 1.1 */}
+        <h1 className="mb-6 text-white">
           {headline}
         </h1>
 
-        {/* Supporting Text */}
-        <p className="text-lg md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed text-white/95">
+        {/* Supporting Text - 18px body text */}
+        <p className="mb-6 max-w-3xl mx-auto text-white/95">
           {supportingText}
         </p>
         
         {/* Context Microcopy for Seasonal-Only */}
         {isSeasonalOnly && ctaTexts.contextMicrocopy && (
-          <p className="text-sm md:text-base mb-6 text-white/80 font-medium">
+          <p className="text-sm mb-6 text-white/80 font-medium">
             {ctaTexts.contextMicrocopy}
           </p>
         )}
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <a
+        {/* CTA Buttons - Unified Design System */}
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+          <Button 
+            variant="primary"
             href={primaryCTA.href}
-            className="px-10 py-5 rounded-lg font-bold text-lg transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105 duration-200 inline-block text-white"
-            style={{ 
-              backgroundColor: palette.colors.accent
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.9';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
-            }}
+            className="text-white"
           >
             {primaryCTA.text}
-          </a>
+          </Button>
           
           {secondaryCTA && (
-            <a
+            <Button
+              variant="ds-secondary"
               href={secondaryCTA.href}
-              className="px-10 py-5 rounded-lg font-bold text-lg transition-all border-2 border-white/80 hover:bg-white/10 duration-200 inline-block text-white"
+              className="border-white/80 text-white hover:bg-white/10 hover:text-white"
             >
               {secondaryCTA.text}
-            </a>
+            </Button>
           )}
         </div>
       </div>
