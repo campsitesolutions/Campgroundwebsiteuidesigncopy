@@ -263,6 +263,9 @@ export function getRecommendedStack(
     });
   }
 
+  // STEP 4.5: Apply multi-model rules
+  applyMultiModelRules(result, allowedModels, primaryBusinessModel);
+
   // STEP 5: Cleanup and finalize
   const finalStack = cleanupAndFinalize(result);
 
@@ -433,6 +436,22 @@ function applyHighlightRules(result: RuleResult, highlight: Highlight, primaryBu
 }
 
 /**
+ * STEP 4.5: Apply multi-model rules
+ */
+function applyMultiModelRules(result: RuleResult, allowedModels: Set<string>, primaryBusinessModel: BusinessModel) {
+  // Seasonal + Overnight: Add overnight experience highlight
+  if (allowedModels.has('seasonal') && allowedModels.has('overnight') && primaryBusinessModel === 'seasonal') {
+    requireSection(result, 'OVERNIGHT_HIGHLIGHT', 'Highlights overnight camping option for seasonal-focused parks');
+  }
+  
+  // Trailers + Cottages: Add trailer and cottage-specific sections
+  if (allowedModels.has('trailers') && allowedModels.has('cottages')) {
+    requireSection(result, 'TRAILER_FEATURED', 'Showcases trailer inventory');
+    requireSection(result, 'STAY_IMAGE', 'Visual cottage showcase with image overlays');
+  }
+}
+
+/**
  * STEP 5: Cleanup and finalize
  */
 function cleanupAndFinalize(result: RuleResult): ShortSectionId[] {
@@ -481,6 +500,31 @@ function cleanupAndFinalize(result: RuleResult): ShortSectionId[] {
     sections.splice(faqIndex, 1);
     const contactIndex = sections.indexOf('CONTACT');
     sections.splice(contactIndex, 0, 'FAQ');
+  }
+
+  // Position OVERNIGHT_HIGHLIGHT after seasonal benefits and before RATES
+  const overnightHighlightIndex = sections.indexOf('OVERNIGHT_HIGHLIGHT');
+  if (overnightHighlightIndex !== -1) {
+    sections.splice(overnightHighlightIndex, 1); // Remove from current position
+    
+    // Find position after last seasonal section
+    const seasonalSections = sections.filter(id => id.startsWith('SEASONAL_'));
+    if (seasonalSections.length > 0) {
+      const lastSeasonalIndex = sections.lastIndexOf(seasonalSections[seasonalSections.length - 1]);
+      sections.splice(lastSeasonalIndex + 1, 0, 'OVERNIGHT_HIGHLIGHT');
+    } else {
+      // If no seasonal sections, place before RATES
+      const ratesIndex = sections.indexOf('RATES');
+      if (ratesIndex !== -1) {
+        sections.splice(ratesIndex, 0, 'OVERNIGHT_HIGHLIGHT');
+      } else {
+        // If no RATES, place after AMEN_GRID
+        const amenIndex = sections.indexOf('AMEN_GRID');
+        if (amenIndex !== -1) {
+          sections.splice(amenIndex + 1, 0, 'OVERNIGHT_HIGHLIGHT');
+        }
+      }
+    }
   }
 
   // Enforce min/max sections
