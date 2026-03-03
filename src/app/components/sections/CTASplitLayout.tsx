@@ -2,6 +2,9 @@ import { ArrowRight } from 'lucide-react';
 import { SectionCustomization } from '../../context/SectionContext';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useWizard } from '../../context/WizardContext';
+import { getCTATexts } from '../../utils/ctaTextMapper';
+import { sanitizeCopy } from '../../utils/copySanitizer';
 
 interface CTASplitLayoutProps {
   customization?: SectionCustomization;
@@ -9,9 +12,18 @@ interface CTASplitLayoutProps {
 
 export function CTASplitLayout({ customization = {} }: CTASplitLayoutProps) {
   const palette = useColorPalette();
-  const headline = customization.headline || 'Start Your Adventure Today';
-  const description = customization.description || 'Join thousands of happy campers who have made unforgettable memories at our campground. Book your stay and discover why families return year after year.';
-  const buttonText = customization.buttonText || 'Reserve Now';
+  const { wizardData } = useWizard();
+  const ctaTexts = getCTATexts(wizardData);
+  
+  const headline = customization.headline 
+    ? sanitizeCopy(customization.headline, wizardData)
+    : sanitizeCopy(ctaTexts.bannerHeadline, wizardData);
+  
+  const description = customization.description 
+    ? sanitizeCopy(customization.description, wizardData)
+    : sanitizeCopy(ctaTexts.bannerSubtext, wizardData);
+  
+  const buttonText = customization.buttonText || ctaTexts.banner;
   const image = customization.image || 'https://images.unsplash.com/photo-1588100249910-3bbdd5cec019?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080';
 
   return (

@@ -1,6 +1,9 @@
 import { ArrowRight } from 'lucide-react';
 import { SectionCustomization } from '../../context/SectionContext';
 import { useColorPalette } from '../../hooks/useColorPalette';
+import { useWizard } from '../../context/WizardContext';
+import { getCTATexts } from '../../utils/ctaTextMapper';
+import { sanitizeCopy } from '../../utils/copySanitizer';
 
 interface CTABannerProps {
   customization?: SectionCustomization;
@@ -8,9 +11,18 @@ interface CTABannerProps {
 
 export function CTABanner({ customization = {} }: CTABannerProps) {
   const palette = useColorPalette();
-  const headline = customization.headline || 'Ready to Book Your Stay?';
-  const description = customization.description || 'Don\'t wait—our best sites fill up fast. Reserve your spot today and start making memories.';
-  const buttonText = customization.buttonText || 'Book Now';
+  const { wizardData } = useWizard();
+  const ctaTexts = getCTATexts(wizardData);
+  
+  const headline = customization.headline 
+    ? sanitizeCopy(customization.headline, wizardData)
+    : sanitizeCopy(ctaTexts.bannerHeadline, wizardData);
+  
+  const description = customization.description 
+    ? sanitizeCopy(customization.description, wizardData)
+    : sanitizeCopy(ctaTexts.bannerSubtext, wizardData);
+  
+  const buttonText = customization.buttonText || ctaTexts.banner;
 
   return (
     <section 

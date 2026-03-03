@@ -1,5 +1,8 @@
 import { ArrowRight } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useWizard } from '../../context/WizardContext';
+import { getCTATexts } from '../../utils/ctaTextMapper';
+import { sanitizeCopy, getDefaultTagline, getDefaultHeadline } from '../../utils/copySanitizer';
 
 interface StatItem {
   number: string;
@@ -7,9 +10,9 @@ interface StatItem {
 }
 
 interface HeroCenteredWithStatsProps {
-  headline: string;
-  supportingText: string;
-  primaryCTA: {
+  headline?: string;
+  supportingText?: string;
+  primaryCTA?: {
     text: string;
     href: string;
   };
@@ -17,20 +20,46 @@ interface HeroCenteredWithStatsProps {
   backgroundImage?: string;
 }
 
-export function HeroCenteredWithStats({
-  headline = "Discover Your Perfect Seasonal Retreat",
-  supportingText = "Experience the tranquility of lakeside camping with all the comforts of home. Reserve your seasonal site for an unforgettable summer.",
-  primaryCTA = {
-    text: "View Available Sites",
+export function HeroCenteredWithStats(props: HeroCenteredWithStatsProps) {
+  const { wizardData } = useWizard();
+  const ctaTexts = getCTATexts(wizardData);
+  
+  // Get model-specific defaults
+  const defaultTagline = getDefaultTagline(wizardData);
+  const defaultHeadline = getDefaultHeadline(wizardData);
+  
+  // Compute allowed models
+  const allowedModels = new Set<string>();
+  if (wizardData.primaryBusinessModel) {
+    allowedModels.add(wizardData.primaryBusinessModel);
+  }
+  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  
+  // Check if seasonal-only
+  const isSeasonalOnly = allowedModels.size === 1 && allowedModels.has('seasonal');
+  
+  // Use props or model-specific defaults
+  const headline = props.headline 
+    ? sanitizeCopy(props.headline, wizardData)
+    : defaultHeadline;
+  
+  const supportingText = props.supportingText 
+    ? sanitizeCopy(props.supportingText, wizardData)
+    : sanitizeCopy(defaultTagline, wizardData);
+  
+  const primaryCTA = props.primaryCTA || {
+    text: ctaTexts.primary,
     href: "#contact"
-  },
-  stats = [
+  };
+  
+  const stats = props.stats || [
     { number: "200+", label: "Seasonal Sites" },
     { number: "25", label: "Years of Service" },
     { number: "4.9★", label: "Guest Rating" }
-  ],
-  backgroundImage = "https://images.unsplash.com/photo-1584680678084-6dcd6e1baaff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920"
-}: HeroCenteredWithStatsProps) {
+  ];
+  
+  const backgroundImage = props.backgroundImage || "https://images.unsplash.com/photo-1584680678084-6dcd6e1baaff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920";
+
   return (
     <section className="relative w-full min-h-[700px] flex items-center justify-center overflow-hidden bg-gray-900">
       {/* Background Image */}
@@ -58,6 +87,13 @@ export function HeroCenteredWithStats({
           <p className="text-lg md:text-xl text-white/90 mb-10 max-w-3xl mx-auto leading-relaxed">
             {supportingText}
           </p>
+          
+          {/* Context Microcopy for Seasonal-Only */}
+          {isSeasonalOnly && ctaTexts.contextMicrocopy && (
+            <p className="text-sm md:text-base mb-8 text-white/80 font-medium">
+              {ctaTexts.contextMicrocopy}
+            </p>
+          )}
 
           {/* Primary CTA */}
           <a

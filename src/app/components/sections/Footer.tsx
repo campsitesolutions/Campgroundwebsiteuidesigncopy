@@ -3,12 +3,61 @@ import { Link } from 'react-router';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { useSections } from '../../context/SectionContext';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useWizard } from '../../context/WizardContext';
+import { sanitizeCopy, getDefaultTagline } from '../../utils/copySanitizer';
 
 export function Footer() {
   const palette = useColorPalette();
   const { branding } = useSections();
+  const { wizardData } = useWizard();
+  
   const companyName = branding.companyName || 'Pine Valley Camp';
   const logoUrl = branding.logoUrl;
+  
+  // Compute allowed models
+  const allowedModels = new Set<string>();
+  if (wizardData.primaryBusinessModel) {
+    allowedModels.add(wizardData.primaryBusinessModel);
+  }
+  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  
+  // Generate model-aware tagline
+  const getFooterTagline = () => {
+    const models: string[] = [];
+    if (allowedModels.has('seasonal')) models.push('seasonal sites');
+    if (allowedModels.has('overnight')) models.push('overnight camping');
+    if (allowedModels.has('cottage-rentals')) models.push('cottage rentals');
+    if (allowedModels.has('trailer-sales')) models.push('trailer sales');
+    
+    if (models.length === 0) {
+      return 'Your premier Ontario campground destination.';
+    } else if (models.length === 1) {
+      return `Your premier Ontario campground destination for ${models[0]}.`;
+    } else if (models.length === 2) {
+      return `Your premier Ontario campground destination for ${models[0]} and ${models[1]}.`;
+    } else {
+      const last = models.pop();
+      return `Your premier Ontario campground destination for ${models.join(', ')}, and ${last}.`;
+    }
+  };
+  
+  const tagline = sanitizeCopy(getFooterTagline(), wizardData);
+  
+  // Define all service links with their associated models
+  const allServiceLinks = [
+    { model: 'overnight', label: 'Overnight Camping', href: '#camping' },
+    { model: 'seasonal', label: 'Seasonal Sites', href: '#seasonal' },
+    { model: 'trailer-sales', label: 'Trailers for Sale', href: '#trailers' },
+    { model: 'cottage-rentals', label: 'Cottage Rentals', href: '#cottages' },
+  ];
+  
+  // Filter service links based on allowed models
+  const serviceLinks = allServiceLinks.filter(link => allowedModels.has(link.model));
+  
+  // Add generic Group Bookings link if we have overnight or seasonal
+  if (allowedModels.has('overnight') || allowedModels.has('seasonal')) {
+    serviceLinks.push({ model: 'generic', label: 'Group Bookings', href: '#groups' });
+  }
 
   return (
     <footer className="text-white" style={{ backgroundColor: palette.colors.primaryDark }}>
@@ -31,7 +80,7 @@ export function Footer() {
               )}
             </div>
             <p className="text-sm mb-4 text-white/80">
-              Your premier Ontario campground destination for seasonal sites, overnight camping, and trailer sales.
+              {tagline}
             </p>
             <div className="flex gap-3">
               <a 
@@ -86,25 +135,17 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Services */}
+          {/* Services - Model-Aware */}
           <div>
             <h4 className="text-white font-bold mb-4">Our Services</h4>
             <ul className="space-y-2 text-sm">
-              <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors">Overnight Camping</a>
-              </li>
-              <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors">Seasonal Sites</a>
-              </li>
-              <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors">Trailers for Sale</a>
-              </li>
-              <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors">Cottage Rentals</a>
-              </li>
-              <li>
-                <a href="#" className="text-white/80 hover:text-white transition-colors">Group Bookings</a>
-              </li>
+              {serviceLinks.map((link) => (
+                <li key={link.label}>
+                  <a href={link.href} className="text-white/80 hover:text-white transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 

@@ -1,6 +1,9 @@
 import { ArrowRight } from 'lucide-react';
 import { SectionCustomization } from '../../context/SectionContext';
 import { useColorPalette } from '../../hooks/useColorPalette';
+import { useWizard } from '../../context/WizardContext';
+import { getCTATexts } from '../../utils/ctaTextMapper';
+import { sanitizeCopy } from '../../utils/copySanitizer';
 
 interface CTASolidBandProps {
   customization?: SectionCustomization;
@@ -8,8 +11,14 @@ interface CTASolidBandProps {
 
 export function CTASolidBand({ customization = {} }: CTASolidBandProps) {
   const palette = useColorPalette();
-  const headline = customization.headline || 'Ready to Experience the Great Outdoors?';
-  const buttonText = customization.buttonText || 'Book Your Stay';
+  const { wizardData } = useWizard();
+  const ctaTexts = getCTATexts(wizardData);
+  
+  const headline = customization.headline 
+    ? sanitizeCopy(customization.headline, wizardData)
+    : sanitizeCopy(ctaTexts.bannerHeadline, wizardData);
+  
+  const buttonText = customization.buttonText || ctaTexts.banner;
 
   return (
     <section 

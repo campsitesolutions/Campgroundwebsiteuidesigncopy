@@ -1,8 +1,10 @@
 import { Calendar, Home, Tent, ArrowRight, MapPin, Users, Clock } from 'lucide-react';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useWizard } from '../../context/WizardContext';
 
 interface StayType {
+  model: string;
   icon: typeof Tent;
   title: string;
   description: string;
@@ -18,11 +20,20 @@ interface StayTypeCardsStructuredProps {
   stayTypes?: StayType[];
 }
 
-export function StayTypeCardsStructured({
-  headline = "Choose Your Stay",
-  subheadline = "Whether it's a quick getaway or a full season, we have the perfect option for you.",
-  stayTypes = [
+export function StayTypeCardsStructured(props: StayTypeCardsStructuredProps) {
+  const palette = useColorPalette();
+  const { wizardData } = useWizard();
+  
+  // Compute allowed models
+  const allowedModels = new Set<string>();
+  if (wizardData.primaryBusinessModel) {
+    allowedModels.add(wizardData.primaryBusinessModel);
+  }
+  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  
+  const defaultStayTypes: StayType[] = [
     {
+      model: 'overnight',
       icon: Tent,
       title: 'Overnight Camping',
       description: 'Perfect for weekend getaways and short trips with full hookups and modern amenities.',
@@ -32,6 +43,7 @@ export function StayTypeCardsStructured({
       imageUrl: 'https://images.unsplash.com/photo-1605620622858-ea62b0a2059c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
     },
     {
+      model: 'seasonal',
       icon: Calendar,
       title: 'Seasonal Sites',
       description: 'Make us your home for the season with premium amenities and a vibrant community.',
@@ -41,6 +53,7 @@ export function StayTypeCardsStructured({
       imageUrl: 'https://images.unsplash.com/photo-1588100249910-3bbdd5cec019?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
     },
     {
+      model: 'cottage-rentals',
       icon: Home,
       title: 'Cottage Rentals',
       description: 'Fully equipped cottages with all the comforts of home for the ultimate camping experience.',
@@ -49,9 +62,28 @@ export function StayTypeCardsStructured({
       href: '#contact',
       imageUrl: 'https://images.unsplash.com/photo-1625926144749-11eef44b0cdb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800',
     },
-  ],
-}: StayTypeCardsStructuredProps) {
-  const palette = useColorPalette();
+  ];
+  
+  // Filter to only show allowed models
+  const stayTypes = (props.stayTypes || defaultStayTypes).filter(type => allowedModels.has(type.model));
+  
+  // If no models, return null
+  if (stayTypes.length === 0) {
+    return null;
+  }
+  
+  // Get title based on selection
+  const getTitle = () => {
+    if (stayTypes.length === 1) {
+      if (allowedModels.has('seasonal')) return 'Seasonal Site Options';
+      if (allowedModels.has('overnight')) return 'Camping Options';
+      if (allowedModels.has('cottage-rentals')) return 'Cottage Options';
+    }
+    return 'Choose Your Stay';
+  };
+  
+  const headline = props.headline || getTitle();
+  const subheadline = props.subheadline || 'Whether it\'s a quick getaway or a full season, we have the perfect option for you.';
 
   return (
     <section className="py-20 bg-gradient-to-b from-white to-gray-50">

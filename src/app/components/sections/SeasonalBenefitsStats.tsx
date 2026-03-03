@@ -1,4 +1,7 @@
 import { useColorPalette } from '../../hooks/useColorPalette';
+import { useWizard } from '../../context/WizardContext';
+import { getCTATexts } from '../../utils/ctaTextMapper';
+import { sanitizeCopy } from '../../utils/copySanitizer';
 
 interface Stat {
   number: string;
@@ -10,12 +13,40 @@ interface SeasonalBenefitsStatsProps {
   headline?: string;
   subheadline?: string;
   stats?: Stat[];
+  closingText?: string;
 }
 
-export function SeasonalBenefitsStats({
-  headline = "Seasonal Camping by the Numbers",
-  subheadline = "Join a thriving community of campers who have made us their summer home.",
-  stats = [
+export function SeasonalBenefitsStats(props: SeasonalBenefitsStatsProps) {
+  const palette = useColorPalette();
+  const { wizardData } = useWizard();
+  const ctaTexts = getCTATexts(wizardData);
+  
+  // Compute allowed models
+  const allowedModels = new Set<string>();
+  if (wizardData.primaryBusinessModel) {
+    allowedModels.add(wizardData.primaryBusinessModel);
+  }
+  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  
+  // Get default closing text based on model
+  const getDefaultClosingText = () => {
+    // Always use "Book Now" language per updated policy
+    return '<strong>Ready to become a seasonal camper?</strong> Book your seasonal site today and experience the freedom and community that comes with seasonal living.';
+  };
+  
+  const headline = props.headline 
+    ? sanitizeCopy(props.headline, wizardData)
+    : 'Seasonal Camping by the Numbers';
+  
+  const subheadline = props.subheadline 
+    ? sanitizeCopy(props.subheadline, wizardData)
+    : 'Join a thriving community of campers who have made us their summer home.';
+  
+  const closingText = props.closingText 
+    ? sanitizeCopy(props.closingText, wizardData)
+    : sanitizeCopy(getDefaultClosingText(), wizardData);
+  
+  const stats = props.stats || [
     {
       number: '150+',
       label: 'Seasonal Sites',
@@ -36,9 +67,7 @@ export function SeasonalBenefitsStats({
       label: 'Years Experience',
       subtext: 'Family operated',
     },
-  ],
-}: SeasonalBenefitsStatsProps) {
-  const palette = useColorPalette();
+  ];
 
   return (
     <section className="py-16 md:py-24 bg-white">
@@ -83,9 +112,10 @@ export function SeasonalBenefitsStats({
 
         {/* Optional Divider Line */}
         <div className="mt-12 md:mt-16 pt-12 md:pt-16 border-t border-gray-200">
-          <p className="text-center text-lg text-gray-700 max-w-2xl mx-auto">
-            <strong>Ready to become a seasonal camper?</strong> Reserve your site today and experience the freedom and community that comes with seasonal living.
-          </p>
+          <p 
+            className="text-center text-lg text-gray-700 max-w-2xl mx-auto"
+            dangerouslySetInnerHTML={{ __html: closingText }}
+          />
         </div>
       </div>
     </section>

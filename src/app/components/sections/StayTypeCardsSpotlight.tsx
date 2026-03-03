@@ -1,7 +1,9 @@
 import { Calendar, Home, Tent, ArrowRight, CheckCircle } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useWizard } from '../../context/WizardContext';
 
 interface FeaturedStayType {
+  model: string;
   icon: typeof Calendar;
   image: string;
   title: string;
@@ -12,6 +14,7 @@ interface FeaturedStayType {
 }
 
 interface StayType {
+  model: string;
   icon: typeof Tent | typeof Home;
   image: string;
   title: string;
@@ -27,10 +30,18 @@ interface StayTypeCardsSpotlightProps {
   stayTypes?: StayType[];
 }
 
-export function StayTypeCardsSpotlight({
-  headline = "Choose Your Stay",
-  subheadline = "Whether it's a quick getaway or a full season, we have the perfect option for you.",
-  featured = {
+export function StayTypeCardsSpotlight(props: StayTypeCardsSpotlightProps) {
+  const { wizardData } = useWizard();
+  
+  // Compute allowed models
+  const allowedModels = new Set<string>();
+  if (wizardData.primaryBusinessModel) {
+    allowedModels.add(wizardData.primaryBusinessModel);
+  }
+  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  
+  const defaultFeatured: FeaturedStayType = {
+    model: 'seasonal',
     icon: Calendar,
     image: 'https://images.unsplash.com/photo-1588100249910-3bbdd5cec019?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
     title: 'Seasonal Sites',
@@ -43,9 +54,11 @@ export function StayTypeCardsSpotlight({
     ],
     cta: 'View Seasonal Options',
     href: '#rates',
-  },
-  stayTypes = [
+  };
+  
+  const defaultStayTypes: StayType[] = [
     {
+      model: 'overnight',
       icon: Tent,
       image: 'https://images.unsplash.com/photo-1605620622858-ea62b0a2059c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
       title: 'Overnight Camping',
@@ -54,6 +67,7 @@ export function StayTypeCardsSpotlight({
       href: '#rates',
     },
     {
+      model: 'cottage-rentals',
       icon: Home,
       image: 'https://images.unsplash.com/photo-1625926144749-11eef44b0cdb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
       title: 'Cottage Rentals',
@@ -61,8 +75,23 @@ export function StayTypeCardsSpotlight({
       cta: 'Explore Cottages',
       href: '#contact',
     },
-  ],
-}: StayTypeCardsSpotlightProps) {
+  ];
+  
+  const featured = props.featured || defaultFeatured;
+  const allTypes = props.stayTypes || defaultStayTypes;
+  
+  // Filter featured and stay types by allowed models
+  const showFeatured = allowedModels.has(featured.model);
+  const stayTypes = allTypes.filter(type => allowedModels.has(type.model));
+  
+  // If nothing to show, return null
+  if (!showFeatured && stayTypes.length === 0) {
+    return null;
+  }
+  
+  const headline = props.headline || 'Choose Your Stay';
+  const subheadline = props.subheadline || 'Whether it\'s a quick getaway or a full season, we have the perfect option for you.';
+
   const FeaturedIcon = featured.icon;
 
   return (
@@ -79,56 +108,58 @@ export function StayTypeCardsSpotlight({
         {/* Grid Layout */}
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Featured Large Card - Left */}
-          <div className="lg:row-span-2">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
-              {/* Image */}
-              <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
-                <ImageWithFallback
-                  src={featured.image}
-                  alt={featured.title}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-6 left-6 bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide">
-                  Featured
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-8 flex flex-col flex-grow">
-                {/* Icon */}
-                <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
-                  <FeaturedIcon className="w-8 h-8 text-emerald-700" />
+          {showFeatured && (
+            <div className="lg:row-span-2">
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden h-full flex flex-col hover:shadow-2xl transition-shadow duration-300">
+                {/* Image */}
+                <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
+                  <ImageWithFallback
+                    src={featured.image}
+                    alt={featured.title}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-6 left-6 bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-sm uppercase tracking-wide">
+                    Featured
+                  </div>
                 </div>
 
-                {/* Title */}
-                <h3 className="text-3xl font-bold mb-4">{featured.title}</h3>
+                {/* Content */}
+                <div className="p-8 flex flex-col flex-grow">
+                  {/* Icon */}
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
+                    <FeaturedIcon className="w-8 h-8 text-emerald-700" />
+                  </div>
 
-                {/* Description */}
-                <p className="text-gray-700 text-lg mb-6 leading-relaxed">
-                  {featured.description}
-                </p>
+                  {/* Title */}
+                  <h3 className="text-3xl font-bold mb-4">{featured.title}</h3>
 
-                {/* Features List */}
-                <ul className="space-y-3 mb-8 flex-grow">
-                  {featured.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                  {/* Description */}
+                  <p className="text-gray-700 text-lg mb-6 leading-relaxed">
+                    {featured.description}
+                  </p>
 
-                {/* CTA Button */}
-                <a
-                  href={featured.href}
-                  className="inline-flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors w-full"
-                >
-                  {featured.cta}
-                  <ArrowRight className="w-5 h-5" />
-                </a>
+                  {/* Features List */}
+                  <ul className="space-y-3 mb-8 flex-grow">
+                    {featured.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA Button */}
+                  <a
+                    href={featured.href}
+                    className="inline-flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors w-full"
+                  >
+                    {featured.cta}
+                    <ArrowRight className="w-5 h-5" />
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Smaller Cards - Right (Stacked) */}
           {stayTypes.map((type) => {

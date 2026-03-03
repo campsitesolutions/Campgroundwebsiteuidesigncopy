@@ -1,35 +1,78 @@
 import { ArrowRight, Phone } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useWizard } from '../../context/WizardContext';
+import { getCTATexts } from '../../utils/ctaTextMapper';
+import { sanitizeCopy, getDefaultTagline, getDefaultHeadline } from '../../utils/copySanitizer';
 
 interface HeroSplitLayoutProps {
   badge?: string;
-  headline: string;
-  supportingText: string;
-  primaryCTA: {
+  headline?: string;
+  supportingText?: string;
+  primaryCTA?: {
     text: string;
     href: string;
   };
-  secondaryCTA: {
+  secondaryCTA?: {
     text: string;
     href: string;
   };
   image?: string;
 }
 
-export function HeroSplitLayout({
-  badge = "Seasonal Sites Available",
-  headline = "Settle Into a Season That Feels Like Home.",
-  supportingText = "Enjoy lakeside living, full-service sites, and a welcoming community designed for the entire summer — not just a weekend.",
-  primaryCTA = {
-    text: "View Seasonal Sites",
+export function HeroSplitLayout(props: HeroSplitLayoutProps) {
+  const { wizardData } = useWizard();
+  const ctaTexts = getCTATexts(wizardData);
+  
+  // Get model-specific defaults
+  const defaultTagline = getDefaultTagline(wizardData);
+  const defaultHeadline = getDefaultHeadline(wizardData);
+  
+  // Compute allowed models for badge
+  const allowedModels = new Set<string>();
+  if (wizardData.primaryBusinessModel) {
+    allowedModels.add(wizardData.primaryBusinessModel);
+  }
+  wizardData.secondaryBusinessModels.forEach(model => allowedModels.add(model));
+  
+  // Check if seasonal-only
+  const isSeasonalOnly = allowedModels.size === 1 && allowedModels.has('seasonal');
+  
+  // Default badge based on model
+  const getDefaultBadge = () => {
+    if (isSeasonalOnly) {
+      return 'Seasonal Sites Available';
+    }
+    if (allowedModels.size === 1 && allowedModels.has('overnight')) {
+      return 'Campsites Available';
+    }
+    return 'Now Accepting Reservations';
+  };
+  
+  // Use props or model-specific defaults
+  const badge = props.badge !== undefined 
+    ? sanitizeCopy(props.badge, wizardData)
+    : getDefaultBadge();
+  
+  const headline = props.headline 
+    ? sanitizeCopy(props.headline, wizardData)
+    : defaultHeadline;
+  
+  const supportingText = props.supportingText 
+    ? sanitizeCopy(props.supportingText, wizardData)
+    : sanitizeCopy(defaultTagline, wizardData);
+  
+  const primaryCTA = props.primaryCTA || {
+    text: ctaTexts.primary,
     href: "#contact"
-  },
-  secondaryCTA = {
-    text: "Request Availability",
+  };
+  
+  const secondaryCTA = props.secondaryCTA || {
+    text: ctaTexts.secondary,
     href: "tel:7055552267"
-  },
-  image = "https://images.unsplash.com/photo-1708927764431-eb9ea284a5ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-}: HeroSplitLayoutProps) {
+  };
+  
+  const image = props.image || "https://images.unsplash.com/photo-1708927764431-eb9ea284a5ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+
   return (
     <section className="bg-white">
       <div className="container mx-auto px-4 lg:px-6">
@@ -38,23 +81,29 @@ export function HeroSplitLayout({
           <div className="flex flex-col justify-center">
             {/* Badge */}
             {badge && (
-              <div className="mb-6">
-                <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full text-sm font-semibold text-emerald-700">
-                  <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+              <div className="inline-block self-start mb-6">
+                <span className="px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-800">
                   {badge}
                 </span>
               </div>
             )}
 
             {/* Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               {headline}
             </h1>
 
             {/* Supporting Text */}
-            <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed max-w-xl">
+            <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
               {supportingText}
             </p>
+            
+            {/* Context Microcopy for Seasonal-Only */}
+            {isSeasonalOnly && ctaTexts.contextMicrocopy && (
+              <p className="text-sm md:text-base mb-6 text-gray-500 font-medium">
+                {ctaTexts.contextMicrocopy}
+              </p>
+            )}
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4">

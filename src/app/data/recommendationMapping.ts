@@ -1,9 +1,15 @@
 import { BusinessModel, Goal, PainPoint, Highlight, WizardData } from '../context/WizardContext';
 import { REVERSE_SECTION_ID_MAP } from './sectionIdMapping';
+import { sections as allSections } from './sections';
 
 /**
  * DETERMINISTIC HOMEPAGE RECOMMENDATION ENGINE
  * Uses structured rule logic with explicit ordering and conflict resolution.
+ * 
+ * HARD GATING RULES:
+ * - Primary Business Model is a hard constraint
+ * - Sections are filtered by allowedModels = {primaryModel} ∪ {secondaryModels}
+ * - Copy is sanitized to remove references to unselected models
  */
 
 type ShortSectionId = string; // e.g., 'NAV_CTA', 'HERO_CINEMATIC', etc.
@@ -14,6 +20,49 @@ interface RuleResult {
   preferSections: Set<ShortSectionId>;
   sectionReasons: Map<ShortSectionId, string>;
   maxSections: number;
+}
+
+/**
+ * Compute allowed business models based on user selections
+ */
+function getAllowedModels(wizardData: WizardData): Set<string> {
+  const allowed = new Set<string>();
+  
+  if (wizardData.primaryBusinessModel) {
+    const modelKey = wizardData.primaryBusinessModel === 'trailer-sales' ? 'trailers' : 
+                     wizardData.primaryBusinessModel === 'cottage-rentals' ? 'cottages' : 
+                     wizardData.primaryBusinessModel;
+    allowed.add(modelKey);
+  }
+  
+  wizardData.secondaryBusinessModels.forEach(model => {
+    const modelKey = model === 'trailer-sales' ? 'trailers' : 
+                     model === 'cottage-rentals' ? 'cottages' : 
+                     model;
+    allowed.add(modelKey);
+  });
+  
+  return allowed;
+}
+
+/**
+ * Check if a section is compatible with allowed models
+ */
+function isSectionAllowed(shortSectionId: string, allowedModels: Set<string>): boolean {
+  // Convert short ID to kebab-case ID
+  const kebabId = REVERSE_SECTION_ID_MAP[shortSectionId];
+  if (!kebabId) return true; // If not mapped, allow it
+  
+  const section = allSections.find(s => s.id === kebabId);
+  if (!section) return true; // If not found, allow it
+  
+  // If section has no model tags, it's allowed for all
+  if (!section.tags.businessModel || section.tags.businessModel.length === 0) {
+    return true;
+  }
+  
+  // Check if section's required models overlap with allowed models
+  return section.tags.businessModel.some(model => allowedModels.has(model));
 }
 
 /**
@@ -188,6 +237,14 @@ export function getRecommendedStack(
   if (!wizardData) {
     return convertToKebabIds(Array.from(result.sections));
   }
+
+  // Compute allowed models
+  const allowedModels = getAllowedModels(wizardData);
+
+  // Filter base stack to only include allowed sections
+  result.sections = new Set(
+    Array.from(result.sections).filter(id => isSectionAllowed(id, allowedModels))
+  );
 
   // STEP 2: Apply global goal rules
   applyGlobalGoalRules(result, primaryGoal);

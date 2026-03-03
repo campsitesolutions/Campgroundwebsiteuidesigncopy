@@ -2,6 +2,9 @@ import { ArrowRight } from 'lucide-react';
 import { SectionCustomization } from '../../context/SectionContext';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useWizard } from '../../context/WizardContext';
+import { getCTATexts } from '../../utils/ctaTextMapper';
+import { sanitizeCopy } from '../../utils/copySanitizer';
 
 interface CTAImageBackgroundProps {
   customization?: SectionCustomization;
@@ -9,9 +12,18 @@ interface CTAImageBackgroundProps {
 
 export function CTAImageBackground({ customization = {} }: CTAImageBackgroundProps) {
   const palette = useColorPalette();
-  const headline = customization.headline || 'Your Perfect Campground Escape Awaits';
-  const description = customization.description || 'Book your stay today and experience the beauty of nature with all the comforts of home.';
-  const buttonText = customization.buttonText || 'Reserve Your Spot';
+  const { wizardData } = useWizard();
+  const ctaTexts = getCTATexts(wizardData);
+  
+  const headline = customization.headline 
+    ? sanitizeCopy(customization.headline, wizardData)
+    : sanitizeCopy(ctaTexts.bannerHeadline, wizardData);
+  
+  const description = customization.description 
+    ? sanitizeCopy(customization.description, wizardData)
+    : sanitizeCopy(ctaTexts.bannerSubtext, wizardData);
+  
+  const buttonText = customization.buttonText || ctaTexts.banner;
   const backgroundImage = customization.backgroundImage || 'https://images.unsplash.com/photo-1592599371910-706644753baf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920';
 
   return (

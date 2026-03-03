@@ -5,6 +5,8 @@ import { useSections } from '../../context/SectionContext';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useColorPalette } from '../../hooks/useColorPalette';
 import { getContrastTextColor } from '../../utils/colorUtils';
+import { useWizard } from '../../context/WizardContext';
+import { getPrimaryCTA } from '../../utils/ctaTextMapper';
 
 interface NavigationWithCTAProps {
   customization?: SectionCustomization;
@@ -13,6 +15,7 @@ interface NavigationWithCTAProps {
 export function NavigationWithCTA({ customization = {} }: NavigationWithCTAProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { branding } = useSections();
+  const { wizardData } = useWizard();
   const palette = useColorPalette();
   
   // Use global branding first, then section customization, then defaults
@@ -20,7 +23,9 @@ export function NavigationWithCTA({ customization = {} }: NavigationWithCTAProps
   const logoUrl = branding.logoUrl || customization.logoUrl;
   const tagline = customization.tagline || 'Your Nature Escape';
   const phone = customization.phone || '555-123-4567';
-  const ctaText = customization.ctaText || 'Book Now';
+  
+  // Get model-specific CTA text
+  const ctaText = customization.ctaText || getPrimaryCTA(wizardData);
 
   const accentTextColor = getContrastTextColor(palette.colors.accent);
 
